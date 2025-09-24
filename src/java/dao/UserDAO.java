@@ -168,6 +168,18 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
         return null;
     }
 
+    public boolean updatePasswordByEmail(String email, String newPlainPassword) {
+        String sql = "UPDATE Users SET PasswordHash=? WHERE Email=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, sha256Hex(newPlainPassword));
+            ps.setString(2, email);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
         UserDAO dao = new UserDAO();
 
