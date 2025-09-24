@@ -4,10 +4,19 @@
  */
 package dao;
 
+import java.util.List;
+
 /**
  *
  * @author ADMIN
  */
-public class DBContext {
+public interface BaseDAO<T> {
+
+    boolean add(T entity);
+
+    boolean update(T entity);
+
+    T getById(int id);
     
+    List<T> getAll();
 }

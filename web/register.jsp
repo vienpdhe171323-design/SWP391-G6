@@ -70,8 +70,8 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <div class="form-floating">
-                                                    <input type="text" class="form-control" id="firstName" name="firstName" 
-                                                           placeholder="Họ" required value="${param.firstName}">
+                                                    <input type="text" class="form-control" id="firstName" name="firstName"
+                                                           placeholder="Họ" required value="${form.firstName}">
                                                     <label for="firstName">
                                                         <i class="fas fa-user me-2"></i>Họ
                                                     </label>
@@ -81,7 +81,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="lastName" name="lastName" 
-                                                           placeholder="Tên" required value="${param.lastName}">
+                                                           placeholder="Tên" required value="${form.lastName}">
                                                     <label for="lastName">
                                                         <i class="fas fa-user me-2"></i>Tên
                                                     </label>
@@ -92,20 +92,11 @@
 
                                         <div class="form-floating mb-3 mt-3">
                                             <input type="email" class="form-control" id="email" name="email" 
-                                                   placeholder="name@example.com" required value="${param.email}">
+                                                   placeholder="name@example.com" required value="${form.email}">
                                             <label for="email">
                                                 <i class="fas fa-envelope me-2"></i>Email
                                             </label>
                                             <div class="invalid-feedback" id="emailError"></div>
-                                        </div>
-
-                                        <div class="form-floating mb-3">
-                                            <input type="tel" class="form-control" id="phone" name="phone" 
-                                                   placeholder="0123456789" required value="${param.phone}">
-                                            <label for="phone">
-                                                <i class="fas fa-phone me-2"></i>Số điện thoại
-                                            </label>
-                                            <div class="invalid-feedback" id="phoneError"></div>
                                         </div>
 
                                         <div class="row g-3">
@@ -137,35 +128,10 @@
 
                                         <div class="form-floating mb-3 mt-3">
                                             <textarea class="form-control" id="address" name="address" 
-                                                      placeholder="Địa chỉ" style="height: 80px;">${param.address}</textarea>
+                                                      placeholder="Địa chỉ" style="height: 80px;">${form.address}</textarea>
                                             <label for="address">
                                                 <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ (tuỳ chọn)
                                             </label>
-                                        </div>
-
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-md-4">
-                                                <div class="form-floating">
-                                                    <select class="form-select" id="gender" name="gender">
-                                                        <option value="">Chọn giới tính</option>
-                                                        <option value="male" ${param.gender == 'male' ? 'selected' : ''}>Nam</option>
-                                                        <option value="female" ${param.gender == 'female' ? 'selected' : ''}>Nữ</option>
-                                                        <option value="other" ${param.gender == 'other' ? 'selected' : ''}>Khác</option>
-                                                    </select>
-                                                    <label for="gender">
-                                                        <i class="fas fa-venus-mars me-2"></i>Giới tính
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div class="form-floating">
-                                                    <input type="date" class="form-control" id="birthDate" name="birthDate" 
-                                                           value="${param.birthDate}">
-                                                    <label for="birthDate">
-                                                        <i class="fas fa-calendar me-2"></i>Ngày sinh (tuỳ chọn)
-                                                    </label>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <div class="form-check mb-3">
