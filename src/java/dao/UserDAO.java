@@ -199,5 +199,34 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
             System.out.println("Thêm user thất bại!");
         }
     }
+    
+         // Lấy danh sách user theo role
+    public List<User> getUsersByRole(String role) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE Role = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, role);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User u = new User(
+                        rs.getInt("UserId"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Role"),
+                        rs.getDate("CreatedAt")
+                );
+                list.add(u);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
 }
