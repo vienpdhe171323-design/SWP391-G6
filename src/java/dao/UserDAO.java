@@ -185,10 +185,10 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
 
         // Tạo user mới
         User admin = new User();
-        admin.setEmail("admin@example.com");
-        admin.setPasswordHash("admin123"); // sẽ được hash SHA-256 trong hàm add()
-        admin.setFullName("System Administrator");
-        admin.setRole("3"); // role admin id = 3 (nếu bạn lưu trong cột Role)
+        admin.setEmail("manager@example.com");
+        admin.setPasswordHash("manager123"); // sẽ được hash SHA-256 trong hàm add()
+        admin.setFullName("System Manager");
+        admin.setRole("8"); // role manager id = 8 (nếu bạn lưu trong cột Role)
         admin.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
 
         boolean ok = dao.add(admin);
