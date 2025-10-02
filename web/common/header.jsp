@@ -418,7 +418,7 @@
         </style>
     </head>
     <body>
-       
+
 
         <!-- Main Header -->
         <header class="main-header">
@@ -461,6 +461,12 @@
                                     </c:choose>
                                 </span>
                             </a>
+                            <c:if test="${sessionScope.user != null}">
+
+                                <a href="${pageContext.request.contextPath}/order-history" class="cart-btn">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </a>
+                            </c:if>
 
                             <!-- User Menu -->
                             <div class="dropdown user-menu">

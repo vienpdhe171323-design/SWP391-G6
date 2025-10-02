@@ -13,10 +13,10 @@ public class OrderDAO extends DBContext {
     public List<Order> getOrderHistory(String status, String fromDate, String toDate, String keyword, int pageIndex) {
         List<Order> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-            "SELECT o.OrderId, o.UserId, u.FullName, o.OrderDate, o.TotalAmount, o.Status " +
-            "FROM Orders o " +
-            "JOIN Users u ON o.UserId = u.UserId " +
-            "WHERE 1=1 "
+                "SELECT o.OrderId, o.UserId, u.FullName, o.OrderDate, o.TotalAmount, o.Status "
+                + "FROM Orders o "
+                + "JOIN Users u ON o.UserId = u.UserId "
+                + "WHERE 1=1 "
         );
 
         if (status != null && !status.trim().isEmpty()) {
@@ -36,10 +36,18 @@ public class OrderDAO extends DBContext {
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
-            if (status != null && !status.trim().isEmpty()) ps.setString(idx++, status);
-            if (fromDate != null && !fromDate.trim().isEmpty()) ps.setString(idx++, fromDate);
-            if (toDate != null && !toDate.trim().isEmpty()) ps.setString(idx++, toDate);
-            if (keyword != null && !keyword.trim().isEmpty()) ps.setString(idx++, "%" + keyword.trim() + "%");
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                ps.setString(idx++, fromDate);
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                ps.setString(idx++, toDate);
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+            }
             ps.setInt(idx, (pageIndex - 1) * 5);
 
             ResultSet rs = ps.executeQuery();
@@ -62,9 +70,9 @@ public class OrderDAO extends DBContext {
     // Đếm tổng số đơn hàng (dùng cho phân trang + filter)
     public int countOrderHistory(String status, String fromDate, String toDate, String keyword) {
         StringBuilder sql = new StringBuilder(
-            "SELECT COUNT(*) " +
-            "FROM Orders o JOIN Users u ON o.UserId = u.UserId " +
-            "WHERE 1=1 "
+                "SELECT COUNT(*) "
+                + "FROM Orders o JOIN Users u ON o.UserId = u.UserId "
+                + "WHERE 1=1 "
         );
 
         if (status != null && !status.trim().isEmpty()) {
@@ -82,14 +90,127 @@ public class OrderDAO extends DBContext {
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
-            if (status != null && !status.trim().isEmpty()) ps.setString(idx++, status);
-            if (fromDate != null && !fromDate.trim().isEmpty()) ps.setString(idx++, fromDate);
-            if (toDate != null && !toDate.trim().isEmpty()) ps.setString(idx++, toDate);
-            if (keyword != null && !keyword.trim().isEmpty()) ps.setString(idx++, "%" + keyword.trim() + "%");
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                ps.setString(idx++, fromDate);
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                ps.setString(idx++, toDate);
+            }
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword.trim() + "%");
+            }
 
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Order> getOrderHistoryByUser(int userId, String status, String fromDate, String toDate, String keyword, int page) {
+        List<Order> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderId, o.UserId, u.FullName as UserName, o.TotalAmount, o.Status, o.OrderDate "
+                + "FROM Orders o JOIN Users u ON o.UserId = u.UserId "
+                + "WHERE o.UserId = ?"
+        );
+
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND o.Status = ?");
+        }
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND o.OrderDate >= ?");
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND o.OrderDate <= ?");
+        }
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND u.FullName LIKE ?");
+        }
+
+        sql.append(" ORDER BY o.OrderDate DESC OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY");
+
+        try ( PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+
+            int idx = 1;
+            ps.setInt(idx++, userId);
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setString(idx++, fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setString(idx++, toDate);
+            }
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+
+            ps.setInt(idx, (page - 1) * 5);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderId"));
+                o.setUserId(rs.getInt("UserId"));
+                o.setUserName(rs.getString("UserName"));
+                o.setTotalAmount(rs.getInt("TotalAmount"));
+                o.setStatus(rs.getString("Status"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countOrderHistoryByUser(int userId, String status, String fromDate, String toDate, String keyword) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o JOIN Users u ON o.UserId = u.UserId WHERE o.UserId = ?"
+        );
+
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND o.Status = ?");
+        }
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND o.OrderDate >= ?");
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND o.OrderDate <= ?");
+        }
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND u.FullName LIKE ?");
+        }
+
+        try ( PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            ps.setInt(idx++, userId);
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setString(idx++, fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setString(idx++, toDate);
+            }
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
