@@ -39,19 +39,21 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
         u.setFullName(rs.getString("FullName"));
         u.setRole(rs.getString("RoleName")); // nếu không có RoleName thì sẽ null
         u.setCreatedAt(rs.getDate("CreatedAt"));
+        u.setStatus(rs.getString("Status")); // Thêm Status
         return u;
     }
 
     // ==== CRUD ====
     @Override
     public boolean add(User user) {
-        String sql = "INSERT INTO Users(Email, PasswordHash, FullName, Role, CreatedAt) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users(Email, PasswordHash, FullName, Role, CreatedAt, Status) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, sha256Hex(user.getPasswordHash())); // hash trước khi lưu
             ps.setString(3, user.getFullName());
             ps.setString(4, user.getRole());
             ps.setDate(5, user.getCreatedAt());
+            ps.setString(6, user.getStatus() != null ? user.getStatus() : "Active"); // Mặc định Active
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -61,14 +63,15 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
 
     @Override
     public boolean update(User user) {
-        String sql = "UPDATE Users SET Email=?, PasswordHash=?, FullName=?, Role=?, CreatedAt=? WHERE UserId=?";
+        String sql = "UPDATE Users SET Email=?, PasswordHash=?, FullName=?, Role=?, CreatedAt=?, Status=? WHERE UserId=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, sha256Hex(user.getPasswordHash())); // hash luôn khi update
             ps.setString(3, user.getFullName());
             ps.setString(4, user.getRole());
             ps.setDate(5, user.getCreatedAt());
-            ps.setInt(6, user.getId());
+            ps.setString(6, user.getStatus());
+            ps.setInt(7, user.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -78,7 +81,7 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
 
     @Override
     public User getById(int id) {
-        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, "
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
                 + "COALESCE(r.RoleName, u.Role) AS RoleName "
                 + "FROM Users u "
                 + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
@@ -99,7 +102,7 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
     @Override
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, "
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
                 + "COALESCE(r.RoleName, u.Role) AS RoleName "
                 + "FROM Users u "
                 + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
@@ -116,7 +119,7 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
 
     // ==== Login ====
     public User login(String email, String password) {
-        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, "
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
                 + "COALESCE(r.RoleName, u.Role) AS RoleName "
                 + "FROM Users u "
                 + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
@@ -150,7 +153,7 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
     }
 
     public User getByEmail(String email) {
-        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, "
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
                 + "COALESCE(r.RoleName, u.Role) AS RoleName "
                 + "FROM Users u "
                 + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
@@ -180,53 +183,242 @@ public class UserDAO extends DBContext implements BaseDAO<User> {
         }
     }
 
-    public static void main(String[] args) {
-        UserDAO dao = new UserDAO();
-
-        // Tạo user mới
-        User admin = new User();
-        admin.setEmail("user@gmail.com");
-        admin.setPasswordHash("123"); // sẽ được hash SHA-256 trong hàm add()
-        admin.setFullName("System Manager");
-        admin.setRole("8"); // role manager id = 8 (nếu bạn lưu trong cột Role)
-        admin.setCreatedAt(new java.sql.Date(System.currentTimeMillis()));
-
-        boolean ok = dao.add(admin);
-
-        if (ok) {
-            System.out.println("Thêm user admin thành công!");
-        } else {
-            System.out.println("Thêm user thất bại!");
-        }
-    }
-    
-            // Lấy danh sách user theo role
-    public List<User> getUsersByRole(String role) {
+    // ==== Get All Users with Pagination (5 users per page) ====
+    public List<User> getAllWithPagination(int page) {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE Role = ?";
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, role);
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize; // Tính số bản ghi cần bỏ qua
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
+                + "COALESCE(r.RoleName, u.Role) AS RoleName "
+                + "FROM Users u "
+                + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+                + "ORDER BY u.UserId DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
-                User u = new User(
-                        rs.getInt("UserId"),
-                        rs.getString("Email"),
-                        rs.getString("PasswordHash"),
-                        rs.getString("FullName"),
-                        rs.getString("Role"),
-                        rs.getDate("CreatedAt")
-                );
-                list.add(u);
+                list.add(mapUserFromResultSet(rs));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return list;
     }
 
+    // ==== Get All Users with Sort and Pagination ====
+    public List<User> getAllWithSort(String sortOrder, int page) {
+        List<User> list = new ArrayList<>();
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
+                + "COALESCE(r.RoleName, u.Role) AS RoleName "
+                + "FROM Users u "
+                + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+                + "ORDER BY u.CreatedAt " + (sortOrder != null && sortOrder.equalsIgnoreCase("desc") ? "DESC" : "ASC")
+                + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapUserFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==== Get Total Users ====
+    public int getTotalUsers() {
+        String sql = "SELECT COUNT(*) FROM Users";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // ==== Delete User ====
+    public boolean deleteUser(int id) {
+        String sql = "DELETE FROM Users WHERE UserId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ==== Active/Deactive User ====
+    public boolean setUserStatus(int id, String status) {
+        String sql = "UPDATE Users SET Status = ? WHERE UserId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ==== Search by Email with Pagination ====
+    public List<User> searchByEmail(String email, int page) {
+        List<User> list = new ArrayList<>();
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
+                + "COALESCE(r.RoleName, u.Role) AS RoleName "
+                + "FROM Users u "
+                + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+                + "WHERE u.Email LIKE ? "
+                + "ORDER BY u.UserId DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + email + "%"); // Tìm kiếm không phân biệt chính xác
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapUserFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==== Get Total Users Matching Search ====
+    public int getTotalUsersByEmail(String email) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE Email LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + email + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // ==== Search by FullName, Role, and Status with Pagination ====
+    public List<User> searchUsers(String fullName, String role, String status, int page) {
+        List<User> list = new ArrayList<>();
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize;
+        String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
+                + "COALESCE(r.RoleName, u.Role) AS RoleName "
+                + "FROM Users u "
+                + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+                + "WHERE 1=1 ";
+        
+        // Thêm điều kiện tìm kiếm
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            sql += "AND u.FullName LIKE ? ";
+        }
+        if (role != null && !role.trim().isEmpty()) {
+            sql += "AND COALESCE(r.RoleName, u.Role) = ? ";
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql += "AND u.Status = ? ";
+        }
+        
+        sql += "ORDER BY u.UserId DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int paramIndex = 1;
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + fullName + "%");
+            }
+            if (role != null && !role.trim().isEmpty()) {
+                ps.setString(paramIndex++, role);
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapUserFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ==== Get Total Users Matching Search ====
+    public int getTotalUsersBySearch(String fullName, String role, String status) {
+        String sql = "SELECT COUNT(*) FROM Users u "
+                + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+                + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+                + "WHERE 1=1 ";
+        
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            sql += "AND u.FullName LIKE ? ";
+        }
+        if (role != null && !role.trim().isEmpty()) {
+            sql += "AND COALESCE(r.RoleName, u.Role) = ? ";
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql += "AND u.Status = ? ";
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int paramIndex = 1;
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + fullName + "%");
+            }
+            if (role != null && !role.trim().isEmpty()) {
+                ps.setString(paramIndex++, role);
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+                // Lấy danh sách user theo role
+public List<User> getUsersByRole(String role) {
+    List<User> list = new ArrayList<>();
+    String sql = "SELECT u.UserId, u.Email, u.PasswordHash, u.FullName, u.CreatedAt, u.Status, "
+               + "COALESCE(r.RoleName, u.Role) AS RoleName "
+               + "FROM Users u "
+               + "LEFT JOIN UserRoles ur ON ur.UserId = u.UserId "
+               + "LEFT JOIN Roles r ON r.RoleId = ur.RoleId "
+               + "WHERE COALESCE(r.RoleName, u.Role) = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, role);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(mapUserFromResultSet(rs));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 }

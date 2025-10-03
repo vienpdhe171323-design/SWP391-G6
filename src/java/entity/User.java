@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package entity;
 
 import java.sql.Date;
@@ -18,17 +14,19 @@ public class User {
     private String fullName;
     private String role;
     private Date createdAt;
+    private String status; // Thêm trường status
 
     public User() {
     }
 
-    public User(int id, String email, String passwordHash, String fullName, String role, Date createdAt) {
+    public User(int id, String email, String passwordHash, String fullName, String role, Date createdAt, String status) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.role = role;
         this.createdAt = createdAt;
+        this.status = status;
     }
 
     public int getId() {
@@ -79,9 +77,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    @Override
-    public String toString() {
-        return "User{" + "id=" + id + ", email=" + email + ", passwordHash=" + passwordHash + ", fullName=" + fullName + ", role=" + role + ", createdAt=" + createdAt + '}';
+    public String getStatus() {
+        return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
