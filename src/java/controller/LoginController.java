@@ -94,6 +94,9 @@ public class LoginController extends HttpServlet {
         } else if ("manager".equals(roleName)) {
             response.sendRedirect(request.getContextPath() + "/manager/dashboard");
 
+        } else if ("warehouse".equals(roleName)) {
+            response.sendRedirect(request.getContextPath() + "/warehouse/warehouses");
+
         } else {
             // fallback
             response.sendRedirect(request.getContextPath() + "/home");

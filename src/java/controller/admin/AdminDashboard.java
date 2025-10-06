@@ -21,6 +21,7 @@ public class AdminDashboard extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setAttribute("title", "Admin Dashboard");
         request.getRequestDispatcher("dashboard.jsp").forward(request, response);
     }
 

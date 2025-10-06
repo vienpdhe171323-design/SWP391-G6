@@ -421,4 +421,8 @@ public List<User> getUsersByRole(String role) {
     }
     return list;
 }
+    public static void main(String[] args) {
+        UserDAO o = new UserDAO();
+        o.login("admin@example.com", "admin123");
+    }
 }

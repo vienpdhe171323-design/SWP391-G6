@@ -1,20 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!-- Sidebar -->
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<c:set var="uri" value="${pageContext.request.requestURI}" />
+
+<!-- Tạo URL có kèm contextPath -->
+<c:url var="dashboardUrl" value="/manager/dashboard"/>
+<c:url var="supplierUrl"  value="/manager/manager-supplier"/>
+<c:url var="logoutUrl"    value="/logout"/>
 <aside class="sidebar" id="sidebar">
     <nav class="sidebar-menu">
-        <a href="${pageContext.request.contextPath}/admin/dashboard" class="menu-item active">
-            <i class="fas fa-home"></i>
-            Dashboard
-        </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-users"></i>
-            Quản lý Users
-        </a>
-         <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="menu-item">
+        <a href="${pageContext.request.contextPath}/warehouse/warehouses" class="menu-item active">
             <i class="fas fa-warehouse"></i>
-            Quản lý Kho
-        </a>
+            Danh sách kho
         </a>
         <a href="${pageContext.request.contextPath}/logout" class="menu-item">
             <i class="fas fa-sign-out-alt"></i>
@@ -22,6 +20,7 @@
         </a>
     </nav>
 </aside>
+
 
 <script>
     function toggleSidebar() {

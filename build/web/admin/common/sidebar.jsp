@@ -3,7 +3,7 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <nav class="sidebar-menu">
-        <a href="#" class="menu-item active">
+        <a href="${pageContext.request.contextPath}/admin/dashboard" class="menu-item active">
             <i class="fas fa-home"></i>
             Dashboard
         </a>
@@ -11,23 +11,12 @@
             <i class="fas fa-users"></i>
             Quản lý Users
         </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-box"></i>
-            Sản phẩm
+         <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="menu-item">
+            <i class="fas fa-warehouse"></i>
+            Quản lý Kho
         </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-shopping-cart"></i>
-            Đơn hàng
         </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-chart-bar"></i>
-            Báo cáo
-        </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-cog"></i>
-            Cài đặt
-        </a>
-        <a href="#" class="menu-item">
+        <a href="${pageContext.request.contextPath}/logout" class="menu-item">
             <i class="fas fa-sign-out-alt"></i>
             Đăng xuất
         </a>
