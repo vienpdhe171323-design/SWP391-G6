@@ -85,6 +85,10 @@
                                         <i class="fas ${wh.status=='ACTIVE' ? 'fa-lock' : 'fa-unlock'}"></i>
                                     </button>
                                 </form>
+                                <a href="stock-history" class="btn btn-outline-secondary">
+                                    <i class="fas fa-history"></i> Xem lịch sử kho
+                                </a>
+
                             </td>
                         </tr>
 

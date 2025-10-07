@@ -2,10 +2,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="common/header.jsp"></jsp:include>
 <jsp:include page="common/sidebar.jsp"></jsp:include>
-
-<main class="main-content" id="mainContent">
-    <div class="container mt-4">
-        <h2>Sản phẩm trong kho: ${warehouse.name}</h2>
+    <style>
+        .table-responsive{
+            padding: 10px 20px 30px 10px;
+        }
+    </style>
+    <main class="main-content" id="mainContent">
+        <div class="container mt-4">
+            <h2>Sản phẩm trong kho: ${warehouse.name}</h2>
         <p class="text-muted">Địa điểm: ${warehouse.location}</p>
 
         <!-- Flash message -->
@@ -41,57 +45,110 @@
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
                 <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Tồn kho</th>
-                    <th>Thao tác</th>
-                </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Thao tác</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <c:forEach var="p" items="${result.items}">
-                    <tr>
-                        <td>${p.id}</td>
-                        <td>${p.productName}</td>
-                        <td>${p.price}</td>
-                        <td>${p.stock}</td>
-                        <td>
-                            <!-- Nhập -->
-                            <form method="post" action="stock-action" class="d-inline">
-                                <input type="hidden" name="action" value="in"/>
-                                <input type="hidden" name="productId" value="${p.id}"/>
-                                <input type="hidden" name="warehouseId" value="${warehouse.id}"/>
-                                <input type="number" name="quantity" min="1" style="width:70px" required/>
-                                <button type="submit" class="btn btn-success btn-sm">Nhập</button>
-                            </form>
+                    <c:forEach var="p" items="${result.items}">
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>${p.productName}</td>
+                            <td>${p.price}</td>
+                            <td>${p.stock}</td>
+                            <td>
+                                <!-- Nút mở modal nhập -->
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#stockInModal${p.id}">
+                                    Nhập
+                                </button>
+                                <!-- Nút mở modal xuất -->
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#stockOutModal${p.id}">
+                                    Xuất
+                                </button>
+                                <!-- Nút mở modal chuyển -->
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#stockTransferModal${p.id}">
+                                    Chuyển
+                                </button>
+                            </td>
+                        </tr>
 
-                            <!-- Xuất -->
-                            <form method="post" action="stock-action" class="d-inline">
-                                <input type="hidden" name="action" value="out"/>
-                                <input type="hidden" name="productId" value="${p.id}"/>
-                                <input type="hidden" name="warehouseId" value="${warehouse.id}"/>
-                                <input type="number" name="quantity" min="1" style="width:70px" required/>
-                                <button type="submit" class="btn btn-danger btn-sm">Xuất</button>
-                            </form>
+                        <!-- Modal Nhập -->
+                    <div class="modal fade" id="stockInModal${p.id}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="stock-action">
+                                    <input type="hidden" name="action" value="in">
+                                    <input type="hidden" name="productId" value="${p.id}">
+                                    <input type="hidden" name="warehouseId" value="${warehouse.id}">
+                                    <div class="modal-header"><h5>Nhập kho - ${p.productName}</h5></div>
+                                    <div class="modal-body">
+                                        <label>Số lượng</label>
+                                        <input type="number" name="quantity" class="form-control" required min="1">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Xác nhận</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
 
-                            <!-- Chuyển -->
-                            <form method="post" action="stock-action" class="d-inline">
-                                <input type="hidden" name="action" value="transfer"/>
-                                <input type="hidden" name="productId" value="${p.id}"/>
-                                <input type="hidden" name="warehouseId" value="${warehouse.id}"/>
-                                <input type="number" name="quantity" min="1" style="width:70px" required/>
-                                <select name="toWarehouseId" class="form-select d-inline" style="width:auto;display:inline-block">
-                                    <c:forEach var="wh2" items="${allWarehouses}">
-                                        <c:if test="${wh2.id ne warehouse.id}">
-                                            <option value="${wh2.id}">${wh2.name}</option>
-                                        </c:if>
-                                    </c:forEach>
-                                </select>
-                                <button type="submit" class="btn btn-warning btn-sm">Chuyển</button>
-                            </form>
-                        </td>
-                    </tr>
+                    <!-- Modal Xuất -->
+                    <div class="modal fade" id="stockOutModal${p.id}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="stock-action">
+                                    <input type="hidden" name="action" value="out">
+                                    <input type="hidden" name="productId" value="${p.id}">
+                                    <input type="hidden" name="warehouseId" value="${warehouse.id}">
+                                    <div class="modal-header"><h5>Xuất kho - ${p.productName}</h5></div>
+                                    <div class="modal-body">
+                                        <label>Số lượng (Tồn: ${p.stock})</label>
+                                        <input type="number" name="quantity" class="form-control" >
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-warning">Xác nhận</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Chuyển -->
+                    <div class="modal fade" id="stockTransferModal${p.id}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="stock-action">
+                                    <input type="hidden" name="action" value="transfer">
+                                    <input type="hidden" name="productId" value="${p.id}">
+                                    <input type="hidden" name="warehouseId" value="${warehouse.id}">
+                                    <div class="modal-header"><h5>Chuyển kho - ${p.productName}</h5></div>
+                                    <div class="modal-body">
+                                        <label>Số lượng (Tồn: ${p.stock})</label>
+                                        <input type="number" name="quantity" class="form-control" >
+                                        <label>Kho đích</label>
+                                        <select name="toWarehouseId" class="form-select" required>
+                                            <c:forEach var="wh" items="${allWarehouses}">
+                                                <c:if test="${wh.id ne warehouse.id}">
+                                                    <option value="${wh.id}">${wh.name}</option>
+                                                </c:if>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-info">Xác nhận</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </c:forEach>
                 </tbody>
             </table>
@@ -106,6 +163,9 @@
                        class="btn btn-sm ${i==result.page?'btn-primary':'btn-outline-primary'}">${i}</a>
                 </c:forEach>
             </div>
+        </div>
+        <div class="mb-3">
+            <a href="warehouses" class="btn btn-secondary">&laquo; Quay lại danh sách kho</a>
         </div>
     </div>
 </main>

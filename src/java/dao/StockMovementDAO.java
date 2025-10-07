@@ -4,8 +4,12 @@
  */
 package dao;
 
+import entity.StockMovement;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import util.DBContext;
+import util.PagedResult;
 
 /**
  *
@@ -37,9 +41,15 @@ public class StockMovementDAO extends DBContext {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            try { connection.rollback(); } catch (SQLException ex) {}
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+            }
         } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException ex) {}
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+            }
         }
         return false;
     }
@@ -72,9 +82,15 @@ public class StockMovementDAO extends DBContext {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            try { connection.rollback(); } catch (SQLException ex) {}
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+            }
         } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException ex) {}
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+            }
         }
         return false;
     }
@@ -98,10 +114,83 @@ public class StockMovementDAO extends DBContext {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            try { connection.rollback(); } catch (SQLException ex) {}
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+            }
         } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException ex) {}
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+            }
         }
         return false;
+    }
+
+    private StockMovement map(ResultSet rs) throws SQLException {
+        StockMovement sm = new StockMovement();
+        sm.setId(rs.getInt("MovementId"));
+        sm.setProductName(rs.getString("ProductName"));
+        sm.setWarehouseName(rs.getString("WarehouseName"));
+        sm.setQuantity(rs.getInt("Quantity"));
+        sm.setMovementType(rs.getString("MovementType"));
+        sm.setCreatedAt(rs.getTimestamp("MovementDate"));
+        return sm;
+    }
+
+    public PagedResult<StockMovement> getHistory(String keyword, String type, int page, int size) {
+        String base = " FROM StockMovements s "
+                + " JOIN Products p ON s.ProductId = p.ProductId "
+                + " JOIN Warehouses w ON s.WarehouseId = w.WarehouseId WHERE 1=1 ";
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            base += " AND (p.ProductName LIKE ? OR w.Name LIKE ?) ";
+            String like = "%" + keyword + "%";
+            params.add(like);
+            params.add(like);
+        }
+
+        if (type != null && !type.isEmpty()) {
+            base += " AND s.MovementType = ? ";
+            params.add(type);
+        }
+
+        int total = 0;
+        String sqlCount = "SELECT COUNT(*) " + base;
+        try (PreparedStatement ps = connection.prepareStatement(sqlCount)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String sqlData = "SELECT s.MovementId, p.ProductName, w.Name as WarehouseName, s.Quantity, s.MovementType, s.MovementDate "
+                + base + " ORDER BY s.MovementDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<StockMovement> items = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sqlData)) {
+            int idx = 1;
+            for (Object p : params) {
+                ps.setObject(idx++, p);
+            }
+            int offset = (Math.max(page, 1) - 1) * size;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx, size);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                items.add(map(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new PagedResult<>(items, total, page, size);
     }
 }

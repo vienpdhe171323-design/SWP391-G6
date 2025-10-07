@@ -30,6 +30,13 @@ public class LoginController extends HttpServlet {
                 request.setAttribute("success", success);
                 session.removeAttribute("flash_success");
             }
+
+            Object error = session.getAttribute("flash_error");
+            if (error != null) {
+                System.out.println(error);
+                request.setAttribute("error", error);
+                session.removeAttribute("flash_error");
+            }
         }
 
         request.getRequestDispatcher("login.jsp").forward(request, response);
