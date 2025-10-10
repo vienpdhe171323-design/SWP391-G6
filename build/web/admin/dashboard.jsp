@@ -1,183 +1,136 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<jsp:include page="common/header.jsp"></jsp:include>
-<jsp:include page="common/sidebar.jsp"></jsp:include>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 0;
+        }
 
-    <!-- Main Content -->
-    <main class="main-content" id="mainContent">
-        <!-- Filters & Search Section -->
-        <div class="filters-section">
-            <h3 style="margin-bottom: 1rem; color: #333;">Tìm kiếm & Lọc dữ liệu</h3>
-            <form method="GET" action="admin-servlet">
-                <div class="filters-row">
-                    <div class="filter-group">
-                        <label>Tìm kiếm</label>
-                        <input type="text" name="search" class="form-input" placeholder="Nhập từ khóa..." style="width: 300px;">
-                    </div>
-                    <div class="filter-group">
-                        <label>Trạng thái</label>
-                        <select name="status" class="form-input">
-                            <option value="">Tất cả</option>
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Loại</label>
-                        <select name="category" class="form-input">
-                            <option value="">Tất cả</option>
-                            <option value="user">Người dùng</option>
-                            <option value="admin">Quản trị</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Từ ngày</label>
-                        <input type="date" name="from_date" class="form-input">
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                            Tìm kiếm
-                        </button>
-                    </div>
-                </div>
-            </form>
+        .navbar {
+            background: linear-gradient(90deg, #273c75, #192a56);
+            color: white;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        .dashboard-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .card {
+            background-color: #fff;
+            width: 240px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            color: #2f3640;
+            margin-bottom: 8px;
+        }
+
+        .card .label {
+            color: #718093;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer {
+            background: #273c75;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        /* icon colors */
+        .users { color: #00a8ff; }
+        .products { color: #9c88ff; }
+        .orders { color: #4cd137; }
+        .revenue { color: #e1b12c; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="navbar">
+        <h1>🛒 Admin Dashboard</h1>
+        <div>
+            <a href="#">Users</a>
+            <a href="#">Products</a>
+            <a href="#">Orders</a>
+            <a href="#">Logout</a>
+        </div>
+    </div>
+
+    <!-- Dashboard cards -->
+    <div class="dashboard-container">
+        <div class="card">
+            <div class="icon users">👥</div>
+            <div class="value">${totalUsers}</div>
+            <div class="label">Users</div>
         </div>
 
-        <!-- Table Section -->
-        <div class="table-section">
-            <div class="table-header">
-                <h3 class="table-title">Danh sách Users</h3>
-                <a href="#" class="btn btn-success">
-                    <i class="fas fa-plus"></i>
-                    Thêm mới
-                </a>
-            </div>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Họ tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Nguyễn Văn An</td>
-                            <td>vanan@email.com</td>
-                            <td>0123456789</td>
-                            <td><span class="status-badge status-active">Hoạt động</span></td>
-                            <td>15/01/2024</td>
-                            <td class="action-buttons">
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Trần Thị Bình</td>
-                            <td>thibinh@email.com</td>
-                            <td>0987654321</td>
-                            <td><span class="status-badge status-inactive">Không hoạt động</span></td>
-                            <td>16/01/2024</td>
-                            <td class="action-buttons">
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Lê Hoàng Cường</td>
-                            <td>hoangcuong@email.com</td>
-                            <td>0567891234</td>
-                            <td><span class="status-badge status-active">Hoạt động</span></td>
-                            <td>17/01/2024</td>
-                            <td class="action-buttons">
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Phạm Minh Đức</td>
-                            <td>minhduc@email.com</td>
-                            <td>0345678912</td>
-                            <td><span class="status-badge status-active">Hoạt động</span></td>
-                            <td>18/01/2024</td>
-                            <td class="action-buttons">
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Võ Thị Em</td>
-                            <td>thiem@email.com</td>
-                            <td>0789123456</td>
-                            <td><span class="status-badge status-inactive">Không hoạt động</span></td>
-                            <td>19/01/2024</td>
-                            <td class="action-buttons">
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination-wrapper">
-                <div class="pagination-info">
-                    Hiển thị 1-5 của 50 kết quả
-                </div>
-                <div class="pagination">
-                    <a href="#" class="page-btn" disabled>
-                        <i class="fas fa-angle-left"></i>
-                    </a>
-                    <a href="#" class="page-btn active">1</a>
-                    <a href="#" class="page-btn">2</a>
-                    <a href="#" class="page-btn">3</a>
-                    <a href="#" class="page-btn">...</a>
-                    <a href="#" class="page-btn">10</a>
-                    <a href="#" class="page-btn">
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            </div>
+        <div class="card">
+            <div class="icon products">📦</div>
+            <div class="value">${totalProducts}</div>
+            <div class="label">Products</div>
         </div>
-    </main>
 
-    <jsp:include page="common/footer.jsp"></jsp:include>
+        <div class="card">
+            <div class="icon orders">🧾</div>
+            <div class="value">${totalOrders}</div>
+            <div class="label">Orders</div>
+        </div>
 
-    
+        <div class="card">
+            <div class="icon revenue">💰</div>
+            <div class="value">$${totalRevenue}</div>
+            <div class="label">Revenue</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2025 Online Market Admin | Developed by Your Team
+    </div>
+
 </body>
 </html>

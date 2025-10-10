@@ -95,7 +95,7 @@ public class LoginController extends HttpServlet {
 
         // Redirect theo role
         if ("admin".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+            response.sendRedirect(request.getContextPath() + "/adminDashboard");
         } else if ("buyer".equals(roleName)) {
             response.sendRedirect(request.getContextPath() + "/home");
         } else if ("manager".equals(roleName)) {
