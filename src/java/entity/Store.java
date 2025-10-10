@@ -8,11 +8,18 @@ public class Store {
     private int userId;
     private String storeName;
     private Date createdAt;
-    private String ownerName; // thêm field này
+    private String ownerName;
 
     public Store() {
     }
 
+    // ✅ Constructor rút gọn (dùng cho dropdown / DAO)
+    public Store(int storeId, String storeName) {
+        this.storeId = storeId;
+        this.storeName = storeName;
+    }
+
+    // ✅ Constructor đầy đủ (dùng khi lấy toàn bộ thông tin store)
     public Store(int storeId, int userId, String storeName, Date createdAt, String ownerName) {
         this.storeId = storeId;
         this.userId = userId;
@@ -21,7 +28,7 @@ public class Store {
         this.ownerName = ownerName;
     }
 
-    // Getter & Setter
+    // Getters & Setters
     public int getStoreId() {
         return storeId;
     }
@@ -60,5 +67,14 @@ public class Store {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    @Override
+    public String toString() {
+        return "Store{" +
+                "storeId=" + storeId +
+                ", storeName='" + storeName + '\'' +
+                ", ownerName='" + ownerName + '\'' +
+                '}';
     }
 }

@@ -3,6 +3,7 @@ package entity;
 import java.math.BigDecimal;
 
 public class Product {
+
     private int id;
     private int storeId;
     private int categoryId;
@@ -11,11 +12,30 @@ public class Product {
     private int stock;
     private String status;
     private String imageUrl;
+    private String storeName;
+    private String categoryName;
 
-    public Product() {}
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public Product() {
+    }
 
     public Product(int id, int storeId, int categoryId, String productName,
-                   BigDecimal price, int stock, String status, String imageUrl) {
+            BigDecimal price, int stock, String status, String imageUrl) {
         this.id = id;
         this.storeId = storeId;
         this.categoryId = categoryId;
@@ -26,39 +46,78 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    // Getters & Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public int getStoreId() { return storeId; }
-    public void setStoreId(int storeId) { this.storeId = storeId; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getCategoryId() { return categoryId; }
-    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+    public int getStoreId() {
+        return storeId;
+    }
 
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) { this.productName = productName; }
+    public void setStoreId(int storeId) {
+        this.storeId = storeId;
+    }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public int getCategoryId() {
+        return categoryId;
+    }
 
-    public int getStock() { return stock; }
-    public void setStock(int stock) { this.stock = stock; }
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getProductName() {
+        return productName;
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     @Override
     public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", productName='" + productName + '\'' +
-                ", price=" + price +
-                ", stock=" + stock +
-                ", status='" + status + '\'' +
-                '}';
+        return "Product{"
+                + "id=" + id
+                + ", productName='" + productName + '\''
+                + ", price=" + price
+                + ", stock=" + stock
+                + ", status='" + status + '\''
+                + '}';
     }
 }

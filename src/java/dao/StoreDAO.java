@@ -13,6 +13,28 @@ import java.util.List;
  * @author Admin
  */
 public class StoreDAO extends DBContext {
+    
+       // Lấy danh sách tất cả các store (id + name)
+    public List<Store> getAllStores() {
+        List<Store> list = new ArrayList<>();
+        String sql = "SELECT StoreId, StoreName FROM Stores";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("StoreId");
+                String name = rs.getString("StoreName");
+                Store s = new Store(id, name);
+                list.add(s);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
     // Lấy toàn bộ store (cho admin), có phân trang + join để lấy tên user
     public List<Store> getAllStoresWithPaging(int pageIndex) {
