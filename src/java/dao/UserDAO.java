@@ -10,6 +10,17 @@ import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
 
 public class UserDAO extends DBContext implements BaseDAO<User> {
+    
+        public void updateFullName(int userId, String fullName) {
+        String sql = "UPDATE Users SET FullName = ? WHERE UserId = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, fullName);
+            st.setInt(2, userId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     // ==== SHA-256 Helper ====
     private static String sha256Hex(String input) {
