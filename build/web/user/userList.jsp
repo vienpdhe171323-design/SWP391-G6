@@ -254,7 +254,7 @@
                                 </td>
                                 <td>${user.createdAt}</td>
                                 <td class="text-center action-buttons">
-                                    <a href="${pageContext.request.contextPath}/admin/user?action=edit&id=${user.id}"
+                                    <a href="${pageContext.request.contextPath}/user?action=edit&id=${user.id}"
                                         class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
