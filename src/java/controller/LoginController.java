@@ -92,7 +92,7 @@ public class LoginController extends HttpServlet {
             // Trường hợp role là tên luôn
             roleName = roleStr.toLowerCase();
         }
-
+        System.out.println(roleName);
         // Redirect theo role
         if ("admin".equals(roleName)) {
             response.sendRedirect(request.getContextPath() + "/adminDashboard");
@@ -103,6 +103,9 @@ public class LoginController extends HttpServlet {
 
         } else if ("warehouse".equals(roleName)) {
             response.sendRedirect(request.getContextPath() + "/warehouse/warehouses");
+
+        } else if ("seller".equals(roleName)) {
+            response.sendRedirect(request.getContextPath() + "/seller/orders");
 
         } else {
             // fallback

@@ -136,7 +136,7 @@ public class OrderDAO extends DBContext {
 
         sql.append(" ORDER BY o.OrderDate DESC OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY");
 
-        try ( PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
 
             int idx = 1;
             ps.setInt(idx++, userId);
@@ -190,7 +190,7 @@ public class OrderDAO extends DBContext {
             sql.append(" AND u.FullName LIKE ?");
         }
 
-        try ( PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
             ps.setInt(idx++, userId);
             if (status != null && !status.isEmpty()) {
@@ -215,6 +215,88 @@ public class OrderDAO extends DBContext {
         }
         return 0;
     }
+// Tìm kiếm các đơn CHƯA có shipment, có keyword + phân trang
+public List<Order> searchOrdersWithoutShipment(String keyword, int page, int pageSize) {
+    List<Order> list = new ArrayList<>();
+    StringBuilder sql = new StringBuilder(
+        "SELECT o.OrderId, o.UserId, u.FullName, o.OrderDate, o.TotalAmount, o.Status " +
+        "FROM Orders o JOIN Users u ON o.UserId = u.UserId " +
+        "WHERE (o.Status IN ('Completed','Confirmed')) " +
+        "AND NOT EXISTS (SELECT 1 FROM Shipments s WHERE s.OrderId = o.OrderId) "
+    );
+    if (keyword != null && !(keyword = keyword.trim()).isEmpty()) {
+        sql.append(" AND (u.FullName LIKE ? OR CAST(o.OrderId AS NVARCHAR(20)) LIKE ?) ");
+    }
+    sql.append(" ORDER BY o.OrderDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        int idx = 1;
+        if (keyword != null && !keyword.isEmpty()) {
+            String like = "%" + keyword + "%";
+            ps.setString(idx++, like);
+            ps.setString(idx++, like);
+        }
+        int offset = (Math.max(page, 1) - 1) * pageSize;
+        ps.setInt(idx++, offset);
+        ps.setInt(idx, pageSize);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderId"));
+                o.setUserId(rs.getInt("UserId"));
+                o.setUserName(rs.getString("FullName"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setStatus(rs.getString("Status"));
+                list.add(o);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+// Đếm tổng số đơn CHƯA có shipment (có keyword)
+public int countOrdersWithoutShipment(String keyword) {
+    StringBuilder sql = new StringBuilder(
+        "SELECT COUNT(*) " +
+        "FROM Orders o JOIN Users u ON o.UserId = u.UserId " +
+        "WHERE (o.Status IN ('Completed','Confirmed')) " +
+        "AND NOT EXISTS (SELECT 1 FROM Shipments s WHERE s.OrderId = o.OrderId) "
+    );
+    try (PreparedStatement ps = connection.prepareStatement(
+            (keyword != null && !keyword.trim().isEmpty())
+            ? sql.append(" AND (u.FullName LIKE ? OR CAST(o.OrderId AS NVARCHAR(20)) LIKE ?) ").toString()
+            : sql.toString())) {
+        int idx = 1;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String like = "%" + keyword.trim() + "%";
+            ps.setString(idx++, like);
+            ps.setString(idx, like);
+        }
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
+// Cập nhật trạng thái order
+public boolean updateStatus(int orderId, String newStatus) {
+    String sql = "UPDATE Orders SET Status = ? WHERE OrderId = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, newStatus);
+        ps.setInt(2, orderId);
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
 
     // Test main
     public static void main(String[] args) {
