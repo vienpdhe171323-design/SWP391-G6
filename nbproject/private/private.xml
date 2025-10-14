@@ -5,8 +5,12 @@
         <group>
             <file>file:/D:/SP2025/OnlineMarket/web/seller/order-manage.jsp</file>
             <file>file:/D:/SP2025/OnlineMarket/src/java/controller/seller/SellerOrderManageServlet.java</file>
+            <file>file:/D:/SP2025/OnlineMarket/src/java/dao/ShipmentDAO.java</file>
             <file>file:/D:/SP2025/OnlineMarket/src/java/dao/OrderDAO.java</file>
             <file>file:/D:/SP2025/OnlineMarket/web/order-history.jsp</file>
+            <file>file:/D:/SP2025/OnlineMarket/src/java/controller/LoginController.java</file>
+            <file>file:/D:/SP2025/OnlineMarket/web/seller/common/sidebar.jsp</file>
+            <file>file:/D:/SP2025/OnlineMarket/src/java/controller/seller/SellerCreateShipmentServlet.java</file>
         </group>
     </open-files>
 </project-private>
