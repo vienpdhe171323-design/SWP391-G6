@@ -11,6 +11,29 @@ import java.util.List;
  * @author Admin
  */
 public class StoreDAO extends DBContext {
+    
+    
+    public List<Store> getTopStores(int limit) {
+    List<Store> list = new ArrayList<>();
+    String sql = "SELECT TOP (?) StoreId, StoreName, CreatedAt "
+               + "FROM Stores "
+               + "ORDER BY StoreId DESC";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, limit);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Store s = new Store();
+            s.setStoreId(rs.getInt("StoreId"));
+            s.setStoreName(rs.getString("StoreName"));
+            s.setCreatedAt(rs.getDate("CreatedAt"));
+            list.add(s);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
 
     // 🔹 Lấy danh sách tất cả store (id + name)
     public List<Store> getAllStores() {
