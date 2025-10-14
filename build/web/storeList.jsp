@@ -5,9 +5,6 @@
 <jsp:include page="common/header.jsp"/>
 
 <style>
-    /* ==================================== */
-    /* STORE MANAGEMENT STYLES */
-    /* ==================================== */
     .main-content {
         flex-grow: 1;
         padding: 40px 20px;
@@ -15,19 +12,16 @@
         margin: 0 auto;
         width: 100%;
     }
-
     .table-wrapper {
         background: #fff;
         padding: 30px; 
         border-radius: 12px; 
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08); /* Sử dụng card-shadow đồng bộ */
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     }
-
     .table-title h2 {
         font-weight: 700;
-        color: #1f2937; /* text-dark đồng bộ */
+        color: #1f2937;
     }
-    
     .table > :not(caption) > * > * {
         padding: 12px 15px; 
     }
@@ -41,7 +35,6 @@
     .table-hover tbody tr:hover {
         background-color: #eef4ff; 
     }
-
     .action-buttons a {
         transition: transform 0.2s ease;
         margin: 0 4px;
@@ -49,23 +42,23 @@
     .action-buttons a:hover {
         transform: translateY(-2px);
     }
-    
-    /* Đồng bộ phân trang Bootstrap */
-    .pagination .page-item .page-link {
-        border-radius: 8px; 
-        margin: 0 4px;
-        transition: all 0.3s;
+    .status-badge {
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 5px 12px;
     }
-    .pagination .page-item.active .page-link {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-        box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+    .status-active {
+        color: #0f5132;
+        background-color: #d1e7dd;
+    }
+    .status-suspended {
+        color: #842029;
+        background-color: #f8d7da;
     }
 </style>
 
 <div class="container main-content">
     <div class="table-wrapper">
-        
         <div class="table-title d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fa-solid fa-store me-2 text-primary"></i> Danh sách Cửa hàng</h2>
             
@@ -92,10 +85,14 @@
         </div>
         
         <c:if test="${not empty message}">
-            <div class="alert alert-success" role="alert"><i class="fa-solid fa-check-circle me-2"></i> ${message}</div>
+            <div class="alert alert-success" role="alert">
+                <i class="fa-solid fa-check-circle me-2"></i> ${message}
+            </div>
         </c:if>
         <c:if test="${not empty error}">
-            <div class="alert alert-danger" role="alert"><i class="fa-solid fa-triangle-exclamation me-2"></i> ${error}</div>
+            <div class="alert alert-danger" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> ${error}
+            </div>
         </c:if>
 
         <div class="table-responsive">
@@ -108,6 +105,7 @@
                             <th>Chủ cửa hàng</th>
                         </c:if>
                         <th>Ngày tạo</th>
+                        <th>Trạng thái</th> <!-- ✅ Thêm cột mới -->
                         <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                             <th class="text-center">Hành động</th>
                         </c:if>
@@ -122,17 +120,54 @@
                                 <td>${s.ownerName}</td>
                             </c:if>
                             <td>${s.createdAt}</td>
+
+                            <!-- ✅ Hiển thị trạng thái -->
+                            <td>
+                                <c:choose>
+                                    <c:when test="${s.status eq 'Active'}">
+                                        <span class="status-badge status-active">Đang hoạt động</span>
+                                    </c:when>
+                                    <c:when test="${s.status eq 'Suspended'}">
+                                        <span class="status-badge status-suspended">Đã tạm ngưng</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge bg-secondary">${s.status}</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+
                             <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                                 <td class="text-center action-buttons">
                                     <a class="btn btn-sm btn-outline-warning" 
                                        href="store?action=edit&id=${s.storeId}" title="Chỉnh sửa">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
+
                                     <a class="btn btn-sm btn-outline-danger" 
                                        href="store?action=delete&id=${s.storeId}" title="Xóa"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa cửa hàng [${s.storeName}]?');">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
+
+                                    <!-- ✅ Nút Suspend / Activate -->
+                                    <c:choose>
+                                        <c:when test="${s.status eq 'Active'}">
+                                            <a class="btn btn-sm btn-outline-secondary"
+                                               href="store?action=suspend&id=${s.storeId}"
+                                               onclick="return confirm('Tạm ngưng cửa hàng [${s.storeName}]?');"
+                                               title="Tạm ngưng">
+                                                <i class="fa-solid fa-pause-circle"></i>
+                                            </a>
+                                        </c:when>
+                                        <c:when test="${s.status eq 'Suspended'}">
+                                            <a class="btn btn-sm btn-outline-success"
+                                               href="store?action=activate&id=${s.storeId}"
+                                               onclick="return confirm('Kích hoạt lại cửa hàng [${s.storeName}]?');"
+                                               title="Kích hoạt lại">
+                                                <i class="fa-solid fa-play-circle"></i>
+                                            </a>
+                                        </c:when>
+                                    </c:choose>
                                 </td>
                             </c:if>
                         </tr>
@@ -141,6 +176,7 @@
             </table>
         </div>
 
+        <!-- PHÂN TRANG -->
         <c:if test="${totalPages > 1}">
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center mt-4">
@@ -152,22 +188,23 @@
                 </ul>
             </nav>
         </c:if>
-        
     </div>
 </div>
 
+<!-- MODAL TẠO CỬA HÀNG MỚI -->
 <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
     <div class="modal fade" id="createStoreModal" tabindex="-1" aria-labelledby="createStoreModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="createStoreModalLabel"><i class="fa-solid fa-square-plus me-2"></i> Tạo cửa hàng mới</h5>
+                    <h5 class="modal-title" id="createStoreModalLabel">
+                        <i class="fa-solid fa-square-plus me-2"></i> Tạo cửa hàng mới
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="store" method="post" class="needs-validation" novalidate>
                     <div class="modal-body">
                         <input type="hidden" name="action" value="create"/>
-
                         <div class="mb-3">
                             <label for="storeName" class="form-label">Tên cửa hàng <span class="text-danger">*</span>:</label>
                             <input type="text" class="form-control" id="storeName" name="storeName" required/>
@@ -187,7 +224,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-save me-2"></i> Tạo cửa hàng</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-save me-2"></i> Tạo cửa hàng
+                        </button>
                     </div>
                 </form>
             </div>
@@ -196,20 +235,19 @@
 </c:if>
 
 <script>
-    // Kích hoạt tính năng validation của Bootstrap (nếu cần)
-    (function () {
-      'use strict'
-      var forms = document.querySelectorAll('.needs-validation')
-      Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    })()
+(function () {
+  'use strict'
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms).forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
 </script>
 
 <jsp:include page="common/footer.jsp"/>
