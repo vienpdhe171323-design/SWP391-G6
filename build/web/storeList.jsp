@@ -2,252 +2,214 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<jsp:include page="common/header.jsp"></jsp:include>
-    <html>
-        <head>
-            <title>Danh sách cửa hàng</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    background: #f5f7fa;
-                }
-                h2 {
-                    text-align: center;
-                    margin-top: 20px;
-                }
-                .action-bar {
-                    width: 80%;
-                    margin: 10px auto;
-                    text-align: right;
-                }
-                .add-btn {
-                    display: inline-block;
-                    padding: 8px 16px;
-                    background: #28a745;
-                    color: white;
-                    border-radius: 5px;
-                    text-decoration: none;
-                    font-weight: bold;
-                    cursor: pointer;
-                }
-                .add-btn:hover {
-                    background: #218838;
-                }
+<jsp:include page="common/header.jsp"/>
 
-                table {
-                    border-collapse: collapse;
-                    width: 80%;
-                    margin: 20px auto;
-                    background: #fff;
-                    border-radius: 8px;
-                    overflow: hidden;
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 10px;
-                    text-align: center;
-                }
-                th {
-                    background-color: #f4f4f4;
-                }
+<style>
+    /* ==================================== */
+    /* STORE MANAGEMENT STYLES */
+    /* ==================================== */
+    .main-content {
+        flex-grow: 1;
+        padding: 40px 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
 
-                .pagination {
-                    text-align: center;
-                    margin-top: 20px;
-                }
-                .pagination a, .pagination b {
-                    margin: 0 5px;
-                    padding: 6px 12px;
-                    text-decoration: none;
-                    border: 1px solid #ccc;
-                    color: #333;
-                }
-                .pagination b {
-                    background-color: #007bff;
-                    color: white;
-                    border-color: #007bff;
-                }
+    .table-wrapper {
+        background: #fff;
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08); /* Sử dụng card-shadow đồng bộ */
+    }
 
-                /* Modal styles */
-                .modal {
-                    display: none;
-                    position: fixed;
-                    z-index: 1000;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-color: rgba(0,0,0,0.5);
-                }
-                .modal-content {
-                    background-color: #fff;
-                    margin: 8% auto;
-                    padding: 20px;
-                    border: 1px solid #888;
-                    width: 400px;
-                    border-radius: 8px;
-                }
-                .modal-header {
-                    font-size: 18px;
-                    font-weight: bold;
-                    margin-bottom: 15px;
-                }
-                .close {
-                    float: right;
-                    font-size: 20px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    color: #aaa;
-                }
-                .close:hover {
-                    color: #000;
-                }
-                input[type="text"], select {
-                    width: 100%;
-                    padding: 8px;
-                    margin-bottom: 15px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                }
-                button {
-                    padding: 10px;
-                    width: 100%;
-                    background: #28a745;
-                    border: none;
-                    color: white;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    font-weight: bold;
-                }
-                button:hover {
-                    background: #218838;
-                }
+    .table-title h2 {
+        font-weight: 700;
+        color: #1f2937; /* text-dark đồng bộ */
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 12px 15px; 
+    }
+    .table-light th {
+        background-color: #e9ecef !important;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #eef4ff; 
+    }
 
-                .action-links a {
-                    margin: 0 5px;
-                    text-decoration: none;
-                    font-weight: bold;
-                }
-                .edit-link {
-                    color: #007bff;
-                }
-                .delete-link {
-                    color: red;
-                }
-            </style>
-        </head>
-        <body>
-            <h2>Danh sách cửa hàng</h2>
+    .action-buttons a {
+        transition: transform 0.2s ease;
+        margin: 0 4px;
+    }
+    .action-buttons a:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Đồng bộ phân trang Bootstrap */
+    .pagination .page-item .page-link {
+        border-radius: 8px; 
+        margin: 0 4px;
+        transition: all 0.3s;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+    }
+</style>
 
-            <!-- Search bar -->
-            <form action="store" method="get" style="display:inline-block; margin-right:20px;">
-                <input type="hidden" name="action" value="search"/>
-                <select name="keyword" onchange="this.form.submit()">
-                    <option value="">-- Chọn cửa hàng --</option>
-                <c:forEach var="s" items="${stores}">
-                    <option value="${s.storeName}">${s.storeName}</option>
-                </c:forEach>
-            </select>
-        </form>
+<div class="container main-content">
+    <div class="table-wrapper">
+        
+        <div class="table-title d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fa-solid fa-store me-2 text-primary"></i> Danh sách Cửa hàng</h2>
+            
+            <div class="d-flex align-items-center gap-3">
+                <form action="store" method="get" class="d-flex align-items-center">
+                    <input type="hidden" name="action" value="search"/>
+                    <select name="keyword" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">-- Lọc theo Tên cửa hàng --</option>
+                        <c:forEach var="s" items="${stores}">
+                            <option value="${fn:escapeXml(s.storeName)}" 
+                                    ${fn:escapeXml(param.keyword) eq fn:escapeXml(s.storeName) ? 'selected' : ''}>
+                                ${s.storeName}
+                            </option>
+                        </c:forEach>
+                    </select>
+                </form>
 
-
-        <!-- Nút Add chỉ cho admin -->
-        <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-            <div class="action-bar">
-                <span class="add-btn" onclick="openModal()">+ Tạo cửa hàng mới</span>
+                <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
+                    <button class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#createStoreModal">
+                        <i class="fa-solid fa-square-plus"></i> Tạo cửa hàng mới
+                    </button>
+                </c:if>
             </div>
+        </div>
+        
+        <c:if test="${not empty message}">
+            <div class="alert alert-success" role="alert"><i class="fa-solid fa-check-circle me-2"></i> ${message}</div>
+        </c:if>
+        <c:if test="${not empty error}">
+            <div class="alert alert-danger" role="alert"><i class="fa-solid fa-triangle-exclamation me-2"></i> ${error}</div>
         </c:if>
 
-        <!-- Bảng danh sách -->
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên cửa hàng</th>
-                        <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-                        <th>Chủ cửa hàng</th>
-                        </c:if>
-                    <th>Ngày tạo</th>
-                        <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-                        <th>Hành động</th>
-                        </c:if>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="s" items="${stores}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
-                        <td>${s.storeId}</td>
-                        <td>${s.storeName}</td>
+                        <th>ID</th>
+                        <th>Tên cửa hàng</th>
                         <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-                            <td>${s.ownerName}</td>
+                            <th>Chủ cửa hàng</th>
                         </c:if>
-                        <td>${s.createdAt}</td>
+                        <th>Ngày tạo</th>
                         <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-                            <td class="action-links">
-                                <a class="edit-link" href="store?action=edit&id=${s.storeId}">✏️ Sửa</a>
-                                <a class="delete-link" href="store?action=delete&id=${s.storeId}" 
-                                   onclick="return confirm('Bạn có chắc chắn muốn xóa cửa hàng này?');">🗑️ Xóa</a>
-                            </td>
+                            <th class="text-center">Hành động</th>
                         </c:if>
                     </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-
-        <!-- Phân trang -->
-        <div class="pagination">
-            <c:forEach begin="1" end="${totalPages}" var="i">
-                <c:choose>
-                    <c:when test="${i == currentPage}">
-                        <b>${i}</b>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="store?action=list&page=${i}">${i}</a>
-                    </c:otherwise>
-                </c:choose>
-            </c:forEach>
+                </thead>
+                <tbody>
+                    <c:forEach var="s" items="${stores}">
+                        <tr>
+                            <td>${s.storeId}</td>
+                            <td><i class="fa-solid fa-shop me-2"></i> ${s.storeName}</td>
+                            <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
+                                <td>${s.ownerName}</td>
+                            </c:if>
+                            <td>${s.createdAt}</td>
+                            <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
+                                <td class="text-center action-buttons">
+                                    <a class="btn btn-sm btn-outline-warning" 
+                                       href="store?action=edit&id=${s.storeId}" title="Chỉnh sửa">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-danger" 
+                                       href="store?action=delete&id=${s.storeId}" title="Xóa"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa cửa hàng [${s.storeName}]?');">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </td>
+                            </c:if>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Modal Add Store (chỉ hiển thị cho admin) -->
-        <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
-            <div id="createModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <div class="modal-header">Tạo cửa hàng mới</div>
-                    <form action="store" method="post">
+        <c:if test="${totalPages > 1}">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                            <a class="page-link" href="store?action=list&page=${i}&keyword=${fn:escapeXml(param.keyword)}">${i}</a>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </nav>
+        </c:if>
+        
+    </div>
+</div>
+
+<c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
+    <div class="modal fade" id="createStoreModal" tabindex="-1" aria-labelledby="createStoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="createStoreModalLabel"><i class="fa-solid fa-square-plus me-2"></i> Tạo cửa hàng mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="store" method="post" class="needs-validation" novalidate>
+                    <div class="modal-body">
                         <input type="hidden" name="action" value="create"/>
 
-                        <label for="storeName">Tên cửa hàng:</label>
-                        <input type="text" id="storeName" name="storeName" required/>
+                        <div class="mb-3">
+                            <label for="storeName" class="form-label">Tên cửa hàng <span class="text-danger">*</span>:</label>
+                            <input type="text" class="form-control" id="storeName" name="storeName" required/>
+                            <div class="invalid-feedback">Vui lòng nhập tên cửa hàng.</div>
+                        </div>
 
-                        <label for="userId">Chọn người bán:</label>
-                        <select id="userId" name="userId" required>
-                            <c:forEach var="u" items="${sellers}">
-                                <option value="${u.id}">${u.fullName} (${u.email})</option>
-                            </c:forEach>
-                        </select>
-
-                        <button type="submit">Tạo cửa hàng</button>
-                    </form>
-                </div>
+                        <div class="mb-3">
+                            <label for="userId" class="form-label">Chọn người bán (Owner) <span class="text-danger">*</span>:</label>
+                            <select class="form-select" id="userId" name="userId" required>
+                                <option value="" disabled selected>-- Chọn người bán --</option>
+                                <c:forEach var="u" items="${sellers}">
+                                    <option value="${u.id}">${u.fullName} (${u.email})</option>
+                                </c:forEach>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn người bán.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-save me-2"></i> Tạo cửa hàng</button>
+                    </div>
+                </form>
             </div>
-        </c:if>
+        </div>
+    </div>
+</c:if>
 
-        <jsp:include page="common/footer.jsp"></jsp:include>
+<script>
+    // Kích hoạt tính năng validation của Bootstrap (nếu cần)
+    (function () {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+</script>
 
-        <script>
-            function openModal() {
-                document.getElementById("createModal").style.display = "block";
-            }
-            function closeModal() {
-                document.getElementById("createModal").style.display = "none";
-            }
-            window.onclick = function (event) {
-                let modal = document.getElementById("createModal");
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
-            }
-        </script>
-    </body>
-</html>
+<jsp:include page="common/footer.jsp"/>
