@@ -30,9 +30,7 @@ public class StoreController extends HttpServlet {
         }
 
         String action = request.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
+        if (action == null) action = "list";
 
         switch (action) {
             case "list":
@@ -47,7 +45,12 @@ public class StoreController extends HttpServlet {
             case "search":
                 searchStores(request, response, user);
                 break;
-
+            case "suspend": // 🔹 Tạm ngưng cửa hàng
+                suspendStore(request, response, user);
+                break;
+            case "activate": // 🔹 Kích hoạt lại cửa hàng
+                activateStore(request, response, user);
+                break;
             default:
                 response.sendRedirect("store?action=list");
         }
@@ -83,36 +86,9 @@ public class StoreController extends HttpServlet {
         }
     }
 
-    private void searchStores(HttpServletRequest request, HttpServletResponse response, User user)
-            throws ServletException, IOException {
-
-        String keyword = request.getParameter("keyword");
-        List<Store> stores;
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            stores = storeDAO.searchStoresByName(keyword.trim());
-        } else {
-            // Nếu không nhập gì thì load lại list bình thường
-            stores = storeDAO.getAllStoresWithPaging(1);
-        }
-
-        request.setAttribute("stores", stores);
-        request.setAttribute("currentPage", 1);
-        request.setAttribute("totalPages", 1);
-
-        // Load sellers nếu là admin (để hiện trong dropdown Add/Edit)
-        if ("admin".equalsIgnoreCase(user.getRole())) {
-            List<User> sellers = userDAO.getUsersByRole("seller");
-            request.setAttribute("sellers", sellers);
-        }
-
-        request.getRequestDispatcher("storeList.jsp").forward(request, response);
-    }
-
     // ====== LIST ======
     private void listStores(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
-
         int page = 1;
         if (request.getParameter("page") != null) {
             page = Integer.parseInt(request.getParameter("page"));
@@ -124,10 +100,8 @@ public class StoreController extends HttpServlet {
         if ("admin".equalsIgnoreCase(user.getRole())) {
             stores = storeDAO.getAllStoresWithPaging(page);
             totalStores = storeDAO.countAllStores();
-
-            List<User> sellers = userDAO.getUsersByRole("Seller"); // lưu ý role trong DB viết hoa
+            List<User> sellers = userDAO.getUsersByRole("Seller");
             request.setAttribute("sellers", sellers);
-
         } else {
             stores = storeDAO.getStoresByUserWithPaging(user.getId(), page);
             totalStores = storeDAO.countStoresByUser(user.getId());
@@ -142,6 +116,31 @@ public class StoreController extends HttpServlet {
         request.getRequestDispatcher("storeList.jsp").forward(request, response);
     }
 
+    // ====== SEARCH ======
+    private void searchStores(HttpServletRequest request, HttpServletResponse response, User user)
+            throws ServletException, IOException {
+
+        String keyword = request.getParameter("keyword");
+        List<Store> stores;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            stores = storeDAO.searchStoresByName(keyword.trim());
+        } else {
+            stores = storeDAO.getAllStoresWithPaging(1);
+        }
+
+        request.setAttribute("stores", stores);
+        request.setAttribute("currentPage", 1);
+        request.setAttribute("totalPages", 1);
+
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            List<User> sellers = userDAO.getUsersByRole("Seller");
+            request.setAttribute("sellers", sellers);
+        }
+
+        request.getRequestDispatcher("storeList.jsp").forward(request, response);
+    }
+
     // ====== CREATE ======
     private void createStore(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
@@ -152,9 +151,9 @@ public class StoreController extends HttpServlet {
         store.setUserId(userId);
         store.setStoreName(storeName);
         store.setCreatedAt(new Date());
+        store.setStatus("Active"); // ✅ Mặc định khi tạo
 
         boolean created = storeDAO.createStore(store);
-
         if (created) {
             session.setAttribute("flash_success", "Tạo cửa hàng thành công!");
             response.sendRedirect("store?action=list&page=1");
@@ -186,14 +185,15 @@ public class StoreController extends HttpServlet {
         int storeId = Integer.parseInt(request.getParameter("storeId"));
         String storeName = request.getParameter("storeName");
         int userId = Integer.parseInt(request.getParameter("userId"));
+        String status = request.getParameter("status"); // ✅ thêm status từ form (nếu có)
 
         Store store = new Store();
         store.setStoreId(storeId);
         store.setStoreName(storeName);
         store.setUserId(userId);
+        store.setStatus(status != null ? status : "Active");
 
         boolean updated = storeDAO.updateStore(store);
-
         if (updated) {
             session.setAttribute("flash_success", "Cập nhật cửa hàng thành công!");
             response.sendRedirect("store?action=list&page=1");
@@ -222,6 +222,38 @@ public class StoreController extends HttpServlet {
             session.setAttribute("flash_error", "Xóa cửa hàng thất bại!");
         }
 
+        response.sendRedirect("store?action=list&page=1");
+    }
+
+    // ====== SUSPEND ======
+    private void suspendStore(HttpServletRequest request, HttpServletResponse response, User user)
+            throws IOException {
+        if (!"admin".equalsIgnoreCase(user.getRole())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền tạm ngưng cửa hàng!");
+            return;
+        }
+
+        int storeId = Integer.parseInt(request.getParameter("id"));
+        storeDAO.updateStatus(storeId, "Suspended");
+
+        HttpSession session = request.getSession();
+        session.setAttribute("flash_success", "Đã tạm ngưng cửa hàng!");
+        response.sendRedirect("store?action=list&page=1");
+    }
+
+    // ====== ACTIVATE ======
+    private void activateStore(HttpServletRequest request, HttpServletResponse response, User user)
+            throws IOException {
+        if (!"admin".equalsIgnoreCase(user.getRole())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền kích hoạt cửa hàng!");
+            return;
+        }
+
+        int storeId = Integer.parseInt(request.getParameter("id"));
+        storeDAO.updateStatus(storeId, "Active");
+
+        HttpSession session = request.getSession();
+        session.setAttribute("flash_success", "Đã kích hoạt lại cửa hàng!");
         response.sendRedirect("store?action=list&page=1");
     }
 }
