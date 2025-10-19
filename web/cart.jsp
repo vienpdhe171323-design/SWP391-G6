@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Trang chủ - Cửa hàng</title>
+    <title>Giỏ hàng - Online Market</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
@@ -28,16 +28,12 @@
              --bs-table-bg: #e5d7f6;
              --bs-table-border-color: #c9b0e2;
         }
-        .category-link.active {
-            font-weight: bold;
-            color: var(--bs-primary); 
-        }
         .footer-dark-bg {
              background-color: #2F4050;
         }
-        .bg-warning-custom {
-            background-color: #d1c4e9 !important;
-            color: #4527a0 !important;
+        .quantity-input {
+            width: 60px;
+            text-align: center;
         }
     </style>
 </head>
@@ -52,13 +48,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="home">Trang chủ</a>
+                        <a class="nav-link" href="home">Trang chủ</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="login.jsp">Đăng nhập</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="cart.jsp">
+                        <a class="nav-link active" aria-current="page" href="cart.jsp">
                             <i class="fas fa-shopping-cart"></i> Giỏ hàng
                             <c:if test="${sessionScope.cart != null}">
                                 <span class="badge bg-danger">${sessionScope.cart.totalQuantity}</span>
@@ -71,169 +67,70 @@
     </nav>
     
     <div class="container mt-5 mb-5 flex-grow-1">
+        <h1 class="text-primary mb-4 border-bottom pb-2">Giỏ hàng</h1>
         
-        <c:if test="${sessionScope.flash_success != null}">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                ${sessionScope.flash_success}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <c:if test="${sessionScope.cart == null || sessionScope.cart.items.size() == 0}">
+            <div class="alert alert-info" role="alert">
+                Giỏ hàng của bạn đang trống. <a href="home" class="alert-link">Tiếp tục mua sắm</a>.
             </div>
-            <c:remove var="flash_success" scope="session"/>
-        </c:if>
-        <c:if test="${sessionScope.flash_error != null}">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                ${sessionScope.flash_error}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <c:remove var="flash_error" scope="session"/>
         </c:if>
         
-        <h1 class="text-primary mb-4 border-bottom pb-2">Trang chủ <small class="text-muted fs-5">(Sản phẩm nổi bật)</small></h1>
-        
-        <form action="home" method="get" style="margin-bottom: 20px;">
-            <input type="text" name="keyword" 
-                   value="${param.keyword}" 
-                   placeholder="Tìm sản phẩm..." 
-                   style="padding: 5px; width: 250px;">
-            <button type="submit">Tìm kiếm</button>
-        </form>
-
-        <div class="row">
-            
-            <div class="col-lg-3">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white border-bottom">
-                        <h3 class="h5 mb-0 text-secondary">Danh mục sản phẩm</h3>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <a href="home" class="category-link ${selectedCategoryId == null ? 'active' : ''}">
-                                <i class="fas fa-grip-horizontal me-2"></i> Tất cả
-                            </a>
-                        </li>
-                        <c:forEach var="cat" items="${categories}">
-                            <li class="list-group-item">
-                                <a href="home?categoryId=${cat.categoryId}"
-                                   class="category-link ${cat.categoryId == selectedCategoryId ? 'active' : ''}">
-                                    <i class="fas fa-tag me-2"></i> ${cat.categoryName}
-                                </a>
-                            </li>
-                        </c:forEach>
-                    </ul>
-                </div>
-                
-                <div class="card shadow-sm">
-                    <div class="card-header bg-warning-custom">
-                        <h3 class="h5 mb-0">⭐ Cửa hàng nổi bật</h3>
-                    </div>
-                    <ul class="list-group list-group-flush small">
-                        <c:forEach var="s" items="${topStores}">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                ${s.storeName} 
-                                <span class="badge bg-secondary text-white">Ngày tạo: ${s.createdAt}</span>
-                            </li>
-                        </c:forEach>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-9">
-                
-                <h3 class="mb-3 text-secondary border-bottom pb-2">Danh sách sản phẩm</h3>
-                
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover table-bordered align-middle bg-white shadow-sm">
-                        <thead class="table-primary">
+        <c:if test="${sessionScope.cart != null && sessionScope.cart.items.size() > 0}">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered align-middle bg-white shadow-sm">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="text-white">Ảnh</th>
+                            <th class="text-white">Sản phẩm</th>
+                            <th class="text-white text-end">Giá</th>
+                            <th class="text-white text-center">Số lượng</th>
+                            <th class="text-white text-end">Tổng</th>
+                            <th class="text-white text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="item" items="${sessionScope.cart.items}">
                             <tr>
-                                <th class="text-white">Ảnh</th>
-                                <th class="text-white">Tên sản phẩm</th>
-                                <th class="text-white text-end">Giá</th>
-                                <th class="text-white">Cửa hàng</th>
-                                <th class="text-white text-center">Hành động</th>
+                                <td>
+                                    <img src="${item.imageUrl}" class="img-thumbnail" alt="${item.productName}" style="width: 80px; height: 80px; object-fit: cover;">
+                                </td>
+                                <td>${item.productName}</td>
+                                <td class="text-end">${item.price}₫</td>
+                                <td class="text-center">
+                                    <form action="cart" method="post" style="display: inline-flex; align-items: center;">
+                                        <input type="hidden" name="action" value="update">
+                                        <input type="hidden" name="productId" value="${item.productId}">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" name="change" value="decrease" <c:if test="${item.quantity <= 1}">disabled</c:if>>
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="quantity" value="${item.quantity}" class="form-control quantity-input mx-2" min="1" readonly>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" name="change" value="increase">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-end">${item.totalPrice}₫</td>
+                                <td class="text-center">
+                                    <form action="cart" method="post" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm ${item.productName} khỏi giỏ hàng không?');">
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="productId" value="${item.productId}">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="p" items="${products}">
-                                <tr>
-                                    <td>
-                                        <img src="${p.imageUrl}" class="img-thumbnail" alt="${p.productName}" style="width: 80px; height: 80px; object-fit: cover;">
-                                    </td>
-                                    <td>${p.productName}</td>
-                                    <td class="text-end text-danger fw-bold">${p.price}₫</td>
-                                    <td>${p.storeName}</td>
-                                    <td class="text-center">
-                                        <a href="product?action=detail&id=${p.id}" class="btn btn-sm btn-outline-primary">
-                                            Xem
-                                        </a>
-                                        <form action="cart" method="post" style="display: inline;">
-                                            <input type="hidden" name="action" value="add">
-                                            <input type="hidden" name="productId" value="${p.id}">
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-
-                <nav aria-label="Phân trang sản phẩm" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <c:choose>
-                            <c:when test="${pageIndex > 1}">
-                                <li class="page-item">
-                                    <a class="page-link text-primary" href="home?page=${pageIndex - 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>" aria-label="Trang trước">
-                                        <span aria-hidden="true">&laquo;</span> Trang trước
-                                    </a>
-                                </li>
-                            </c:when>
-                            <c:otherwise>
-                                <li class="page-item disabled">
-                                    <span class="page-link text-muted" aria-label="Trang trước">
-                                        <span aria-hidden="true">&laquo;</span> Trang trước
-                                    </span>
-                                </li>
-                            </c:otherwise>
-                        </c:choose>
-
-                        <c:forEach begin="1" end="${totalPages}" var="i">
-                            <c:choose>
-                                <c:when test="${i == pageIndex}">
-                                    <li class="page-item active" aria-current="page">
-                                        <span class="page-link bg-primary border-primary">${i}</span>
-                                    </li>
-                                </c:when>
-                                <c:otherwise>
-                                    <li class="page-item">
-                                        <a class="page-link text-primary" href="home?page=${i}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>">${i}</a>
-                                    </li>
-                                </c:otherwise>
-                            </c:choose>
                         </c:forEach>
-
-                        <c:choose>
-                            <c:when test="${pageIndex < totalPages}">
-                                <li class="page-item">
-                                    <a class="page-link text-primary" href="home?page=${pageIndex + 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>" aria-label="Trang sau">
-                                        Trang sau <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </c:when>
-                            <c:otherwise>
-                                <li class="page-item disabled">
-                                    <span class="page-link text-muted" aria-label="Trang sau">
-                                        Trang sau <span aria-hidden="true">&raquo;</span>
-                                    </span>
-                                </li>
-                            </c:otherwise>
-                        </c:choose>
-                    </ul>
-                </nav>
-                
+                    </tbody>
+                </table>
             </div>
-        </div>
+            <div class="text-end mt-4">
+                <h4>Tổng cộng: <span class="text-danger fw-bold">${sessionScope.cart.totalPrice}₫</span></h4>
+                <a href="#" class="btn btn-primary mt-2">Tiến hành thanh toán</a>
+            </div>
+        </c:if>
     </div>
+    
     <footer class="mt-auto pt-5 text-white footer-dark-bg">
         <div class="container">
             <div class="row pb-4 border-bottom border-secondary">
@@ -322,6 +219,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 </body>
 </html>
