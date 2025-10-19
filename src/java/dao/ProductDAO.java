@@ -247,61 +247,115 @@ public class ProductDAO extends DBContext {
         }
         return list;
     }
-    
+
     // ✅ Đếm tổng số sản phẩm theo CategoryId
-public int getTotalProductCountByCategory(int categoryId) {
-    String sql = "SELECT COUNT(*) FROM Products WHERE CategoryId = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, categoryId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        e.printStackTrace();
+    public int getTotalProductCountByCategory(int categoryId) {
+        String sql = "SELECT COUNT(*) FROM Products WHERE CategoryId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
-    return 0;
-}
 
 // ✅ Lấy sản phẩm theo Category + phân trang (ROW_NUMBER)
-public List<Product> getProductsByCategoryAndPage(int categoryId, int pageIndex) {
-    List<Product> list = new ArrayList<>();
-    int pageSize = 10;
+    public List<Product> getProductsByCategoryAndPage(int categoryId, int pageIndex) {
+        List<Product> list = new ArrayList<>();
+        int pageSize = 10;
 
-    String sql = "SELECT * FROM ("
-            + " SELECT ROW_NUMBER() OVER (ORDER BY p.ProductId ASC) AS RowNum, "
-            + " p.ProductId, p.ProductName, p.Price, p.Stock, p.Status, p.ImageUrl, "
-            + " c.CategoryName, s.StoreName "
-            + " FROM Products p "
-            + " JOIN Categories c ON p.CategoryId = c.CategoryId "
-            + " JOIN Stores s ON p.StoreId = s.StoreId "
-            + " WHERE p.CategoryId = ? "
-            + ") AS Result "
-            + " WHERE RowNum BETWEEN (? - 1) * ? + 1 AND ? * ?";
+        String sql = "SELECT * FROM ("
+                + " SELECT ROW_NUMBER() OVER (ORDER BY p.ProductId ASC) AS RowNum, "
+                + " p.ProductId, p.ProductName, p.Price, p.Stock, p.Status, p.ImageUrl, "
+                + " c.CategoryName, s.StoreName "
+                + " FROM Products p "
+                + " JOIN Categories c ON p.CategoryId = c.CategoryId "
+                + " JOIN Stores s ON p.StoreId = s.StoreId "
+                + " WHERE p.CategoryId = ? "
+                + ") AS Result "
+                + " WHERE RowNum BETWEEN (? - 1) * ? + 1 AND ? * ?";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, categoryId);
-        ps.setInt(2, pageIndex);
-        ps.setInt(3, pageSize);
-        ps.setInt(4, pageIndex);
-        ps.setInt(5, pageSize);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ps.setInt(2, pageIndex);
+            ps.setInt(3, pageSize);
+            ps.setInt(4, pageIndex);
+            ps.setInt(5, pageSize);
 
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Product p = new Product();
-            p.setId(rs.getInt("ProductId"));
-            p.setProductName(rs.getString("ProductName"));
-            p.setPrice(rs.getBigDecimal("Price"));
-            p.setStock(rs.getInt("Stock"));
-            p.setStatus(rs.getString("Status"));
-            p.setImageUrl(rs.getString("ImageUrl"));
-            p.setCategoryName(rs.getString("CategoryName"));
-            p.setStoreName(rs.getString("StoreName"));
-            list.add(p);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("ProductId"));
+                p.setProductName(rs.getString("ProductName"));
+                p.setPrice(rs.getBigDecimal("Price"));
+                p.setStock(rs.getInt("Stock"));
+                p.setStatus(rs.getString("Status"));
+                p.setImageUrl(rs.getString("ImageUrl"));
+                p.setCategoryName(rs.getString("CategoryName"));
+                p.setStoreName(rs.getString("StoreName"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
 
+    public List<Product> searchProductsByName(String keyword, int pageIndex, int pageSize) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM ("
+                + " SELECT ROW_NUMBER() OVER (ORDER BY p.ProductId ASC) AS RowNum, "
+                + " p.ProductId, p.ProductName, p.Price, p.Stock, p.Status, p.ImageUrl, "
+                + " c.CategoryName, s.StoreName "
+                + " FROM Products p "
+                + " JOIN Categories c ON p.CategoryId = c.CategoryId "
+                + " JOIN Stores s ON p.StoreId = s.StoreId "
+                + " WHERE p.ProductName LIKE ? AND p.Status = 'Active' "
+                + ") AS Result "
+                + " WHERE RowNum BETWEEN (? - 1) * ? + 1 AND ? * ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, pageIndex);
+            ps.setInt(3, pageSize);
+            ps.setInt(4, pageIndex);
+            ps.setInt(5, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("ProductId"));
+                p.setProductName(rs.getString("ProductName"));
+                p.setPrice(rs.getBigDecimal("Price"));
+                p.setStock(rs.getInt("Stock"));
+                p.setStatus(rs.getString("Status"));
+                p.setImageUrl(rs.getString("ImageUrl"));
+                p.setCategoryName(rs.getString("CategoryName"));
+                p.setStoreName(rs.getString("StoreName"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int getTotalProductCountByName(String keyword) {
+        String sql = "SELECT COUNT(*) FROM Products WHERE ProductName LIKE ? AND Status = 'Active'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
 }

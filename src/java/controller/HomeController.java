@@ -25,14 +25,15 @@ public class HomeController extends HttpServlet {
     private final HomePageDAO homePageDAO = new HomePageDAO();
 
     @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String categoryParam = request.getParameter("categoryId");
         String pageParam = request.getParameter("page");
+        String keyword = request.getParameter("keyword");
 
         Integer categoryId = (categoryParam != null && !categoryParam.isEmpty()) ? Integer.parseInt(categoryParam) : null;
-        int pageIndex = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
+        int pageIndex = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
         int pageSize = 10;
 
         // Danh mục sidebar
@@ -42,10 +43,16 @@ public class HomeController extends HttpServlet {
         List<Product> products;
         int totalProducts;
 
-        if (categoryId != null) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // Tìm kiếm theo từ khóa
+            products = productDAO.searchProductsByName(keyword, pageIndex, pageSize);
+            totalProducts = productDAO.getTotalProductCountByName(keyword);
+        } else if (categoryId != null) {
+            // Lọc theo danh mục
             products = productDAO.getProductsByCategoryAndPage(categoryId, pageIndex);
             totalProducts = productDAO.getTotalProductCountByCategory(categoryId);
         } else {
+            // Lấy tất cả sản phẩm
             products = productDAO.getProductsByPage(pageIndex);
             totalProducts = productDAO.getTotalProductCount();
         }
@@ -59,5 +66,4 @@ public class HomeController extends HttpServlet {
 
         request.getRequestDispatcher("/user/home.jsp").forward(request, response);
     }
-
 }

@@ -31,6 +31,15 @@
     </div>
 </section>
 
+<form action="home" method="get" style="margin-bottom: 20px;">
+    <input type="text" name="keyword" 
+           value="${param.keyword}" 
+           placeholder="Tìm sản phẩm..." 
+           style="padding: 5px; width: 250px;">
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+
 <!-- Main Content -->
 <div class="container my-5" id="products">
     <div class="row">
