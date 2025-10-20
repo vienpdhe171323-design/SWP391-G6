@@ -357,5 +357,18 @@ public class ProductDAO extends DBContext {
         }
         return 0;
     }
+    
+    // Giảm hoặc tăng tồn kho của sản phẩm
+public void updateStock(int productId, int quantityChange) {
+    String sql = "UPDATE Products SET Stock = Stock + ? WHERE ProductId = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, quantityChange);
+        ps.setInt(2, productId);
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 
 }

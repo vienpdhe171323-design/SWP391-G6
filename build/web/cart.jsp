@@ -125,9 +125,20 @@
                 </table>
             </div>
             <div class="text-end mt-4">
-                <h4>Tổng cộng: <span class="text-danger fw-bold">${sessionScope.cart.totalPrice}₫</span></h4>
-                <a href="#" class="btn btn-primary mt-2">Tiến hành thanh toán</a>
-            </div>
+    <h4>Tổng cộng: 
+        <span class="text-danger fw-bold">
+            ${sessionScope.cart.totalPrice}₫
+        </span>
+    </h4>
+    
+    <!-- ✅ Form gửi POST đến CheckoutServlet -->
+    <form action="checkout" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-primary mt-2">
+            <i class="fas fa-credit-card"></i> Tiến hành thanh toán
+        </button>
+    </form>
+</div>
+
         </c:if>
     </div>
     

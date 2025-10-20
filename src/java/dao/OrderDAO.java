@@ -297,38 +297,26 @@ public boolean updateStatus(int orderId, String newStatus) {
     return false;
 }
 
+// Tạo đơn hàng mới khi người dùng thanh toán
+public int createOrder(Order order) {
+    String sql = "INSERT INTO Orders (UserId, OrderDate, TotalAmount, Status) VALUES (?, ?, ?, ?)";
+    try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        ps.setInt(1, order.getUserId());
+        ps.setTimestamp(2, order.getOrderDate());
+        ps.setDouble(3, order.getTotalAmount());
+        ps.setString(4, order.getStatus());
+        ps.executeUpdate();
 
-    // Test main
-    public static void main(String[] args) {
-        OrderDAO dao = new OrderDAO();
-
-        System.out.println("===== TEST ORDER HISTORY (All) =====");
-        List<Order> orders = dao.getOrderHistory("", "", "", "", 1);
-        for (Order o : orders) {
-            System.out.println(o);
+        // Lấy OrderId tự tăng sau khi insert
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         }
-
-        System.out.println("\n===== TEST FILTER BY STATUS: Completed =====");
-        List<Order> completedOrders = dao.getOrderHistory("Completed", "", "", "", 1);
-        for (Order o : completedOrders) {
-            System.out.println(o);
-        }
-
-        System.out.println("\n===== TEST FILTER BY DATE RANGE (Sep 2025) =====");
-        List<Order> septOrders = dao.getOrderHistory("", "2025-09-01", "2025-09-30", "", 1);
-        for (Order o : septOrders) {
-            System.out.println(o);
-        }
-
-        System.out.println("\n===== TEST FILTER BY USER NAME (Tran) =====");
-        List<Order> tranOrders = dao.getOrderHistory("", "", "", "Tran", 1);
-        for (Order o : tranOrders) {
-            System.out.println(o);
-        }
-
-        System.out.println("\n===== TEST COUNT =====");
-        System.out.println("Tổng số đơn hàng: " + dao.countOrderHistory("", "", "", ""));
-        System.out.println("Tổng số đơn Completed: " + dao.countOrderHistory("Completed", "", "", ""));
-        System.out.println("Tổng số đơn của user Tran: " + dao.countOrderHistory("", "", "", "Tran"));
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return -1; // Nếu lỗi, trả về -1
+}
+
 }

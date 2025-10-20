@@ -81,14 +81,20 @@ public class OrderItemDAO extends DBContext {
         }
         return map;
     }
-
-    // Test main
-    public static void main(String[] args) {
-        OrderItemDAO dao = new OrderItemDAO();
-        List<OrderItem> items = dao.getItemsByOrderId(1);
-        for (OrderItem i : items) {
-            System.out.println(i);
-            System.out.println("Subtotal = " + i.getSubtotal());
-        }
+    
+    // Thêm sản phẩm vào bảng OrderItems khi tạo đơn hàng
+public void addOrderItem(OrderItem item) {
+    String sql = "INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice) VALUES (?, ?, ?, ?)";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, item.getOrderId());
+        ps.setInt(2, item.getProductId());
+        ps.setInt(3, item.getQuantity());
+        ps.setDouble(4, item.getUnitPrice());
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+}
+
+
 }
