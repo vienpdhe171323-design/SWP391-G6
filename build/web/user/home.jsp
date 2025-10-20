@@ -57,6 +57,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="login.jsp">Đăng nhập</a>
                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="order">Xem Lịch Sử Mua Hàng</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="cart.jsp">
                             <i class="fas fa-shopping-cart"></i> Giỏ hàng
