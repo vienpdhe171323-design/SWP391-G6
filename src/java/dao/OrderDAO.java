@@ -395,5 +395,51 @@ public class OrderDAO extends DBContext {
         }
         return list;
     }
+    
+    // Lọc đơn hàng theo khoảng giá tiền 
+public List<Order> getOrdersByUserAndPriceRange(int userId, Double minPrice, Double maxPrice) {
+    List<Order> list = new ArrayList<>();
+    StringBuilder sql = new StringBuilder("""
+        SELECT o.OrderId, o.UserId, u.FullName AS UserName,
+               o.OrderDate, o.TotalAmount, o.Status
+        FROM Orders o
+        JOIN Users u ON o.UserId = u.UserId
+        WHERE o.UserId = ?
+    """);
+
+    if (minPrice != null) {
+        sql.append(" AND o.TotalAmount >= ? ");
+    }
+    if (maxPrice != null) {
+        sql.append(" AND o.TotalAmount <= ? ");
+    }
+
+    sql.append(" ORDER BY o.TotalAmount DESC");
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        int idx = 1;
+        ps.setInt(idx++, userId);
+
+        if (minPrice != null) ps.setDouble(idx++, minPrice);
+        if (maxPrice != null) ps.setDouble(idx++, maxPrice);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Order o = new Order();
+            o.setOrderId(rs.getInt("OrderId"));
+            o.setUserId(rs.getInt("UserId"));
+            o.setUserName(rs.getString("UserName"));
+            o.setOrderDate(rs.getTimestamp("OrderDate"));
+            o.setTotalAmount(rs.getDouble("TotalAmount"));
+            o.setStatus(rs.getString("Status"));
+            list.add(o);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
 
 }

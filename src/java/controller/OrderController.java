@@ -20,7 +20,9 @@ public class OrderController extends HttpServlet {
 
         HttpSession session = request.getSession();
         String action = request.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null) {
+            action = "list";
+        }
 
         switch (action) {
 
@@ -41,6 +43,29 @@ public class OrderController extends HttpServlet {
                 request.setAttribute("orders", orders);
                 request.setAttribute("fromDate", fromDate);
                 request.setAttribute("toDate", toDate);
+
+                request.getRequestDispatcher("user/my-orders.jsp").forward(request, response);
+                break;
+            }
+
+            case "filterPrice": {
+                User user = (User) session.getAttribute("user");
+                if (user == null) {
+                    response.sendRedirect("login.jsp");
+                    return;
+                }
+
+                String minParam = request.getParameter("minPrice");
+                String maxParam = request.getParameter("maxPrice");
+                Double minPrice = (minParam != null && !minParam.isEmpty()) ? Double.parseDouble(minParam) : null;
+                Double maxPrice = (maxParam != null && !maxParam.isEmpty()) ? Double.parseDouble(maxParam) : null;
+
+                OrderDAO orderDAO = new OrderDAO();
+                List<Order> orders = orderDAO.getOrdersByUserAndPriceRange(user.getId(), minPrice, maxPrice);
+
+                request.setAttribute("orders", orders);
+                request.setAttribute("minPrice", minParam);
+                request.setAttribute("maxPrice", maxParam);
 
                 request.getRequestDispatcher("user/my-orders.jsp").forward(request, response);
                 break;
