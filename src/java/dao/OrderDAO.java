@@ -321,9 +321,9 @@ public class OrderDAO extends DBContext {
         return -1;
     }
 
-   public List<Order> getOrdersByUserId(int userId) {
-    List<Order> list = new ArrayList<>();
-    String sql = """
+    public List<Order> getOrdersByUserId(int userId) {
+        List<Order> list = new ArrayList<>();
+        String sql = """
         SELECT o.OrderId, o.UserId, u.FullName AS UserName,
                o.OrderDate, o.TotalAmount, o.Status
         FROM Orders o
@@ -332,24 +332,68 @@ public class OrderDAO extends DBContext {
         ORDER BY o.OrderDate DESC
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Order o = new Order();
-            o.setOrderId(rs.getInt("OrderId"));
-            o.setUserId(rs.getInt("UserId"));
-            o.setUserName(rs.getString("UserName"));
-            o.setOrderDate(rs.getTimestamp("OrderDate"));
-            o.setTotalAmount(rs.getDouble("TotalAmount"));
-            o.setStatus(rs.getString("Status"));
-            list.add(o);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderId"));
+                o.setUserId(rs.getInt("UserId"));
+                o.setUserName(rs.getString("UserName"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setStatus(rs.getString("Status"));
+                list.add(o);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
 
+    public List<Order> getOrdersByUserAndDateRange(int userId, String fromDate, String toDate) {
+        List<Order> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+        SELECT o.OrderId, o.UserId, u.FullName AS UserName,
+               o.OrderDate, o.TotalAmount, o.Status
+        FROM Orders o
+        JOIN Users u ON o.UserId = u.UserId
+        WHERE o.UserId = ?
+    """);
+
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND o.OrderDate >= ? ");
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND o.OrderDate <= ? ");
+        }
+        sql.append(" ORDER BY o.OrderDate DESC");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            ps.setInt(idx++, userId);
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setString(idx++, fromDate + " 00:00:00");
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setString(idx++, toDate + " 23:59:59");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getInt("OrderId"));
+                o.setUserId(rs.getInt("UserId"));
+                o.setUserName(rs.getString("UserName"));
+                o.setOrderDate(rs.getTimestamp("OrderDate"));
+                o.setTotalAmount(rs.getDouble("TotalAmount"));
+                o.setStatus(rs.getString("Status"));
+                list.add(o);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
 }
