@@ -37,7 +37,7 @@
 
         /* HEADER / NAVBAR */
         .navbar {
-            background: var(--secondary-dark); /* Màu tối cho header */
+            background: var(--secondary-dark);
             color: var(--text-light);
             padding: 18px 50px;
             display: flex;
@@ -72,10 +72,10 @@
         }
         
         .dashboard-container {
-            max-width: 1200px; /* Giới hạn chiều rộng cho màn hình lớn */
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between; /* Tối ưu hóa khoảng cách */
+            justify-content: space-between;
             gap: 30px;
             flex-wrap: wrap;
         }
@@ -83,7 +83,7 @@
         /* METRIC CARDS */
         .card {
             background-color: #fff;
-            flex: 1; /* Cho phép thẻ co giãn */
+            flex: 1;
             min-width: 250px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -93,7 +93,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            border-left: 5px solid; /* Đường viền màu nổi bật */
+            border-left: 5px solid;
         }
 
         .card:hover {
@@ -157,56 +157,84 @@
             margin-right: 2px;
             font-weight: 600;
         }
+
+        /* Link “Xem chi tiết” */
+        .btn-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
+    <!-- HEADER -->
     <div class="navbar">
         <h1><i class="fa-solid fa-gauge-high"></i> Bảng điều khiển Admin</h1>
         <div>
-            <a href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
-            <a href="#"><i class="fa-solid fa-boxes-stacked"></i> Sản phẩm</a>
-            <a href="#"><i class="fa-solid fa-receipt"></i> Đơn hàng</a>
+            <a href="user"><i class="fa-solid fa-users"></i> Người dùng</a>
+            <a href="product"><i class="fa-solid fa-boxes-stacked"></i> Sản phẩm</a>
+            <a href="order-report"><i class="fa-solid fa-receipt"></i> Đơn hàng</a>
             <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
         </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main-content">
         <div class="dashboard-container">
+
+            <!-- Tổng người dùng -->
             <div class="card users">
                 <div class="header-group">
                     <div class="label">Tổng người dùng</div>
                     <div class="icon"><i class="fa-solid fa-users"></i></div>
                 </div>
                 <div class="value">${totalUsers}</div>
+                <a href="user" class="btn-link">👥 Xem chi tiết người dùng</a>
             </div>
 
+            <!-- Tổng sản phẩm -->
             <div class="card products">
                 <div class="header-group">
                     <div class="label">Tổng sản phẩm</div>
                     <div class="icon"><i class="fa-solid fa-box-open"></i></div>
                 </div>
                 <div class="value">${totalProducts}</div>
+                <a href="product" class="btn-link">📦 Xem chi tiết sản phẩm</a>
             </div>
 
+            <!-- Tổng đơn hàng -->
             <div class="card orders">
                 <div class="header-group">
                     <div class="label">Tổng đơn hàng</div>
                     <div class="icon"><i class="fa-solid fa-cart-shopping"></i></div>
                 </div>
                 <div class="value">${totalOrders}</div>
+                <a href="order-report" class="btn-link">🧾 Xem chi tiết đơn hàng</a>
             </div>
 
+            <!-- Tổng doanh thu -->
             <div class="card revenue">
                 <div class="header-group">
                     <div class="label">Tổng doanh thu</div>
                     <div class="icon"><i class="fa-solid fa-wallet"></i></div>
                 </div>
                 <div class="value">${totalRevenue}</div>
+                <a href="order-report" class="btn-link">💰 Xem báo cáo doanh thu</a>
             </div>
         </div>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
         © 2025 Online Market Admin | Được phát triển bởi Your Team
     </div>
