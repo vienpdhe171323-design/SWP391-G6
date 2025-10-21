@@ -75,6 +75,8 @@
                         </c:forEach>
                     </select>
                 </form>
+                
+   
 
                 <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                     <button class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#createStoreModal">
@@ -83,6 +85,10 @@
                 </c:if>
             </div>
         </div>
+        
+                     <button onclick="window.history.back()" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Quay lại
+</button>
         
         <c:if test="${not empty message}">
             <div class="alert alert-success" role="alert">

@@ -121,6 +121,10 @@
                     <i class="fa-solid fa-plus"></i> Thêm sản phẩm mới
                 </a>
             </div>
+            
+            <button onclick="window.history.back()" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Quay lại
+</button>
 
             <!-- Product Table -->
             <div class="table-responsive shadow-sm">

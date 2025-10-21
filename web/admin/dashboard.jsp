@@ -267,7 +267,8 @@
                         <div class="icon"><i class="fa-solid fa-wallet"></i></div>
                     </div>
                     <div class="value">${totalRevenue}</div>
-                    <a href="order-report" class="btn-link">💰 Xem báo cáo doanh thu</a>
+                    <a href="${pageContext.request.contextPath}/admin/revenue-report" class="btn-link">💰 Xem báo cáo doanh thu</a>
+
                 </div>
             </div>
         </div>
