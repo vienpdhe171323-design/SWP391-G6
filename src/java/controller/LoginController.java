@@ -24,6 +24,7 @@ public class LoginController extends HttpServlet {
             redirectByRole((User) session.getAttribute("user"), request, response);
             return;
         }
+
         if (session != null) {
             Object success = session.getAttribute("flash_success");
             if (success != null) {
@@ -55,15 +56,32 @@ public class LoginController extends HttpServlet {
 
         if (u == null) {
             request.setAttribute("error", "Email hoặc mật khẩu không đúng.");
-            request.setAttribute("param.email", email); // để giữ lại email nếu bạn muốn
+            request.setAttribute("param.email", email); // giữ lại email nếu muốn
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
+        // ============================================================
+        // Gắn role name thật (VD: 3 → admin, 8 → manager, ...)
+        // ============================================================
+        try {
+            int roleId = Integer.parseInt(u.getRole());
+            RoleDAO roleDAO = new RoleDAO();
+            Role role = roleDAO.getUserRoleByRoleId(roleId);
+            if (role != null) {
+                u.setRole(role.getName().trim().toLowerCase()); // gán tên role thật
+            }
+        } catch (NumberFormatException e) {
+            // nếu role đã là tên rồi thì bỏ qua
+        }
+
+        // ============================================================
+        // Tạo session và ghi nhớ user
+        // ============================================================
         HttpSession session = request.getSession(true);
         session.setAttribute("user", u);
 
-        // Remember email (đơn giản) 7 ngày
+        // Remember email (đơn giản) – lưu cookie 7 ngày
         if (remember) {
             Cookie ck = new Cookie("rememberEmail", email);
             ck.setMaxAge(7 * 24 * 60 * 60);
@@ -72,45 +90,55 @@ public class LoginController extends HttpServlet {
             response.addCookie(ck);
         }
 
+        // ============================================================
+        // Redirect theo role
+        // ============================================================
         redirectByRole(u, request, response);
     }
 
     private void redirectByRole(User u, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String roleStr = (u.getRole() == null ? "" : u.getRole().trim());
-        String roleName = "";
 
-        // Trường hợp role là số ID
-        if (roleStr.matches("\\d+")) {
-            int roleId = Integer.parseInt(roleStr);
-            RoleDAO roleDAO = new RoleDAO();
-            Role role = roleDAO.getUserRoleByRoleId(roleId);
-            if (role != null) {
-                roleName = role.getName().trim().toLowerCase();
-            }
-        } else {
-            // Trường hợp role là tên luôn
-            roleName = roleStr.toLowerCase();
-        }
-        System.out.println(roleName);
-        // Redirect theo role
-        if ("admin".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/adminDashboard");
-        } else if ("buyer".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/home");
-        } else if ("manager".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+        String roleStr = (u.getRole() == null ? "" : u.getRole().trim().toLowerCase());
+        System.out.println("ROLE = " + roleStr); // debug console
 
-        } else if ("warehouse".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/warehouse/warehouses");
+        switch (roleStr) {
+            case "admin":
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+                break;
 
-        } else if ("seller".equals(roleName)) {
-            response.sendRedirect(request.getContextPath() + "/seller/orders");
+            case "buyer":
+                response.sendRedirect(request.getContextPath() + "/home");
+                break;
 
-        } else {
-            // fallback
-            response.sendRedirect(request.getContextPath() + "/home");
+            case "manager":
+                response.sendRedirect(request.getContextPath() + "/manager/dashboard");
+                break;
+
+            case "warehouse":
+                response.sendRedirect(request.getContextPath() + "/warehouse/warehouses");
+                break;
+
+            case "seller":
+                response.sendRedirect(request.getContextPath() + "/seller/orders");
+                break;
+
+            case "staff":
+                response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                break;
+
+            case "finance":
+                response.sendRedirect(request.getContextPath() + "/finance/dashboard");
+                break;
+
+            case "cskh":
+                response.sendRedirect(request.getContextPath() + "/cskh/dashboard");
+                break;
+
+            default:
+                // fallback cho user bình thường
+                response.sendRedirect(request.getContextPath() + "/home");
+                break;
         }
     }
-
 }

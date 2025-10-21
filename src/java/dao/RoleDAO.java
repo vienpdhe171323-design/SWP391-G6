@@ -69,12 +69,15 @@ public class RoleDAO extends DBContext {
     }
 
     public Role getUserRoleByRoleId(int roleId) {
-        String sql = "SELECT * FROM Roles WHERE RoleId = ?";
+        String sql = "SELECT RoleId, RoleName FROM Roles WHERE RoleId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, roleId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new Role(rs.getInt("RoleId"), rs.getString("RoleName"));
+                Role role = new Role();
+                role.setId(rs.getInt("RoleId"));
+                role.setName(rs.getString("RoleName"));
+                return role;
             }
         } catch (SQLException e) {
             e.printStackTrace();

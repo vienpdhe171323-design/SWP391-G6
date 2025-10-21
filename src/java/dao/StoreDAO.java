@@ -273,4 +273,19 @@ public class StoreDAO extends DBContext {
 
         System.out.println("===== END TEST =====");
     }
+        
+        public int countStores() {
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM Stores";
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return count;
+}
+
 }
