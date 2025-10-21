@@ -95,13 +95,22 @@
         
         <h1 class="text-primary mb-4 border-bottom pb-2">Trang chủ <small class="text-muted fs-5">(Sản phẩm nổi bật)</small></h1>
         
-        <form action="home" method="get" style="margin-bottom: 20px;">
-            <input type="text" name="keyword" 
-                   value="${param.keyword}" 
-                   placeholder="Tìm sản phẩm..." 
-                   style="padding: 5px; width: 250px;">
-            <button type="submit">Tìm kiếm</button>
-        </form>
+        <form action="home" method="get" class="d-flex mb-4" role="search" style="max-width: 400px;">
+    <div class="input-group shadow-sm">
+        <input type="text" name="keyword"
+               value="${param.keyword}"
+               class="form-control border-primary"
+               placeholder="🔍 Tìm sản phẩm..."
+               aria-label="Tìm sản phẩm"
+               style="border-top-left-radius: 25px; border-bottom-left-radius: 25px;">
+        <button class="btn btn-primary px-4"
+                type="submit"
+                style="border-top-right-radius: 25px; border-bottom-right-radius: 25px;">
+            <i class="fas fa-search"></i> Tìm kiếm
+        </button>
+    </div>
+</form>
+
 
         <div class="row">
             
