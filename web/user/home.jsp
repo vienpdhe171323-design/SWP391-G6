@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Trang chủ - Cửa hàng</title>
+    <title>Trang chủ - Online Market</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -66,6 +66,21 @@
             font-size: 0.7rem;
             vertical-align: top;
             margin-left: 4px;
+        }
+
+        .dropdown-menu {
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .dropdown-item {
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
         }
 
         /* Search Bar */
@@ -297,20 +312,52 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow">
         <div class="container">
-            <a class="navbar-brand" href="home">🛒 Online Market</a>
+            <a class="navbar-brand" href="home">Online Market</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link active" href="home">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.jsp">Đăng nhập</a></li>
-                    <li class="nav-item"><a class="nav-link" href="order">Lịch sử mua</a></li>
-                    <li class="nav-item"><a class="nav-link" href="profile">Hồ sơ</a></li>
                     <li class="nav-item">
-                        <a class="nav-link" href="cart.jsp">
+                        <a class="nav-link ${pageContext.request.requestURI.contains('home') ? 'active' : ''}" href="home">Trang chủ</a>
+                    </li>
+
+                    <!-- KIỂM TRA ĐĂNG NHẬP -->
+                    <c:choose>
+                        <c:when test="${sessionScope.user != null}">
+                            <!-- ĐÃ ĐĂNG NHẬP -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle me-1"></i>
+                                    Chào, <strong>${sessionScope.user.fullName != null ? sessionScope.user.fullName : sessionScope.user.username}</strong>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="profile"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
+                                    <li><a class="dropdown-item" href="order"><i class="fas fa-history me-2"></i> Lịch sử mua</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- CHƯA ĐĂNG NHẬP -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="login.jsp"><i class="fas fa-sign-in-alt me-1"></i> Đăng nhập</a>
+                            </li>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <!-- GIỎ HÀNG -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="cart.jsp">
                             <i class="fas fa-shopping-cart"></i> Giỏ hàng
-                            <c:if test="${sessionScope.cart != null}">
+                            <c:if test="${sessionScope.cart != null && sessionScope.cart.totalQuantity > 0}">
                                 <span class="badge bg-danger badge-cart">${sessionScope.cart.totalQuantity}</span>
                             </c:if>
                         </a>
@@ -347,7 +394,7 @@
         <!-- Search Bar -->
         <form action="home" method="get" class="search-container">
             <div class="input-group">
-                <input type="text" name="keyword" value="${param.keyword}" class="form-control search-input" placeholder="🔍 Tìm kiếm sản phẩm...">
+                <input type="text" name="keyword" value="${param.keyword}" class="form-control search-input" placeholder="Tìm kiếm sản phẩm...">
                 <button class="btn btn-primary search-btn" type="submit">
                     <i class="fas fa-search"></i>
                 </button>
@@ -357,7 +404,7 @@
         <div class="row g-4">
             <!-- Sidebar -->
             <div class="col-lg-3">
-                <!-- Categories -->
+                <!-- Danh mục -->
                 <div class="sidebar-card mb-4">
                     <div class="sidebar-header">
                         <i class="fas fa-list me-2"></i> Danh mục
@@ -378,7 +425,7 @@
                     </ul>
                 </div>
 
-                <!-- Top Stores -->
+                <!-- Cửa hàng nổi bật -->
                 <div class="sidebar-card store-highlight">
                     <div class="sidebar-header" style="background: #ffb300; color: #333;">
                         <i class="fas fa-store me-2"></i> Cửa hàng nổi bật
@@ -432,11 +479,11 @@
                         <c:choose>
                             <c:when test="${pageIndex > 1}">
                                 <li class="page-item">
-                                    <a class="page-link" href="home?page=${pageIndex - 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>">« Trước</a>
+                                    <a class="page-link" href="home?page=${pageIndex - 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>">Trước</a>
                                 </li>
                             </c:when>
                             <c:otherwise>
-                                <li class="page-item disabled"><span class="page-link">« Trước</span></li>
+                                <li class="page-item disabled"><span class="page-link">Trước</span></li>
                             </c:otherwise>
                         </c:choose>
 
@@ -449,11 +496,11 @@
                         <c:choose>
                             <c:when test="${pageIndex < totalPages}">
                                 <li class="page-item">
-                                    <a class="page-link" href="home?page=${pageIndex + 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>">Sau »</a>
+                                    <a class="page-link" href="home?page=${pageIndex + 1}<c:if test='${selectedCategoryId != null}'>&categoryId=${selectedCategoryId}</c:if><c:if test='${param.keyword != null}'>&keyword=${param.keyword}</c:if>">Sau</a>
                                 </li>
                             </c:when>
                             <c:otherwise>
-                                <li class="page-item disabled"><span class="page-link">Sau »</span></li>
+                                <li class="page-item disabled"><span class="page-link">Sau</span></li>
                             </c:otherwise>
                         </c:choose>
                     </ul>
@@ -467,7 +514,7 @@
         <div class="container">
             <div class="row g-4 footer-divider pb-4">
                 <div class="col-lg-4">
-                    <h5>🛒 Online Market</h5>
+                    <h5>Online Market</h5>
                     <p class="small">Nền tảng thương mại điện tử hàng đầu, mang đến trải nghiệm mua sắm tiện lợi và an toàn.</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
