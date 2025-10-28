@@ -19,13 +19,26 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "LogoutController", urlPatterns = {"/logout"})
 public class LogoutController extends HttpServlet {
 
+    // Xử lý cả GET và POST
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        logout(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        logout(request, response); // Gọi chung 1 hàm
+    }
+
+    // Hàm chung để đăng xuất
+    private void logout(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        response.sendRedirect("login.jsp");
+        response.sendRedirect(request.getContextPath() + "/home"); // hoặc "login.jsp"
     }
 }

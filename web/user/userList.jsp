@@ -8,222 +8,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Người dùng</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* ==================================== */
-        /* GLOBAL STYLES (ĐỒNG BỘ VỚI DASHBOARD) */
-        /* ==================================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --transition: all 0.3s ease;
         }
 
-        :root {
-            --primary-color: #0d6efd; /* Bootstrap Primary */
-            --secondary-dark: #1f2937; /* Màu nền header/footer (Dashboard) */
-            --bg-light: #f3f4f6; /* Nền body nhẹ (Dashboard) */
-            --text-light: #e5e7eb;
-            --text-dark: #1f2937;
-            --card-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        [data-theme="dark"] {
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
+            background: #f8fafc;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1.5rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--sidebar-hover);
+            color: white;
+        }
+
+        .sidebar-item.active {
+            border-left: 4px solid var(--primary);
+            padding-left: 1.3rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Search & Filter */
+        .filter-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filter-group {
             display: flex;
             flex-direction: column;
         }
 
-        /* HEADER / NAVBAR (ĐỒNG BỘ) */
-        .navbar {
-            background: var(--secondary-dark); /* Màu tối cho header */
+        .filter-group label {
+            font-size: 0.875rem;
             color: var(--text-light);
-            padding: 18px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar h1 {
-            font-size: 24px;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .navbar a {
-            color: var(--text-light);
-            text-decoration: none;
-            margin-left: 25px;
+            margin-bottom: 0.5rem;
             font-weight: 500;
-            padding: 5px 0;
-            transition: color 0.3s ease;
         }
 
-        .navbar a:hover {
-            color: var(--primary-color); /* Sử dụng màu Bootstrap Primary */
-            border-bottom: 2px solid var(--primary-color);
-        }
-        
-        /* FOOTER (ĐỒNG BỘ) */
-        .footer {
-            margin-top: auto; /* Đẩy footer xuống cuối trang */
-            background: var(--secondary-dark);
-            color: var(--text-light);
-            text-align: center;
-            padding: 15px;
-            font-size: 14px;
+        /* Table */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
-        /* ==================================== */
-        /* USER MANAGEMENT STYLES */
-        /* ==================================== */
-        .main-content {
-            flex-grow: 1;
-            padding: 40px 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
+        .table thead {
+            background: var(--primary);
+            color: white;
         }
 
-        .table-wrapper {
-            background: #fff;
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: var(--card-shadow); 
-        }
-
-        .table-title h2 {
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        
-        .search-filters {
-            padding: 20px;
-            background-color: #f8f9fa; 
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .btn-icon-text .fa-solid {
-            margin-right: 8px;
-        }
-
-        .table > :not(caption) > * > * {
-            padding: 12px 15px; 
-        }
-        .table-light th {
-            background-color: #e9ecef !important;
-            color: #495057;
+        .table thead th {
             font-weight: 600;
+            border: none;
+            padding: 1rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            font-size: 14px;
-        }
-        .table-hover tbody tr:hover {
-            background-color: #eef4ff; 
-        }
-        
-        .badge {
-            font-size: 0.85em;
-            font-weight: 700;
-            padding: 0.5em 0.8em;
-            min-width: 80px;
-            display: inline-block;
-        }
-        
-        .action-buttons a, .action-buttons button {
-            transition: transform 0.2s ease;
-        }
-        .action-buttons a:hover, .action-buttons button:hover {
-            transform: translateY(-2px);
+            letter-spacing: 0.5px;
         }
 
-        .pagination .page-item .page-link {
-            border-radius: 8px; 
-            margin: 0 4px;
-            transition: all 0.3s;
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: var(--border);
+            font-size: 0.95rem;
         }
+
+        .table tbody tr:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-admin { background: #fecaca; color: #991b1b; }
+        .badge-seller { background: #fde68a; color: #92400e; }
+        .badge-buyer { background: #bfdbfe; color: #1e40af; }
+        .badge-active { background: #dcfce7; color: #166534; }
+        .badge-inactive { background: #fee2e2; color: #991b1b; }
+
+        .action-btn {
+            padding: 0.4rem 0.7rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin: 0 2px;
+            transition: var(--transition);
+        }
+
+        .btn-edit { background: #fef3c7; color: #92400e; border: none; }
+        .btn-edit:hover { background: #fde68a; }
+
+        .btn-deactive { background: #e5e7eb; color: #4b5563; border: none; }
+        .btn-deactive:hover { background: #d1d5db; }
+
+        .btn-active { background: #d1fae5; color: #065f46; border: none; }
+        .btn-active:hover { background: #a7f3d0; }
+
+        .btn-delete { background: #fee2e2; color: #991b1b; border: none; }
+        .btn-delete:hover { background: #fecaca; }
+
+        /* Pagination */
+        .pagination .page-link {
+            border-radius: 8px;
+            margin: 0 3px;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.85rem;
+            font-weight: 500;
+        }
+
         .pagination .page-item.active .page-link {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                padding: 1rem 0;
+            }
+            .sidebar-header h1, .sidebar-item span {
+                display: none;
+            }
+            .sidebar-item {
+                justify-content: center;
+            }
+            .main-content {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
 <body>
-    
-    <div class="navbar">
-        <h1><i class="fa-solid fa-gauge-high"></i> Bảng điều khiển Admin</h1>
-        <div>
-            <a href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
-            <a href="#"><i class="fa-solid fa-boxes-stacked"></i> Sản phẩm</a>
-            <a href="#"><i class="fa-solid fa-receipt"></i> Đơn hàng</a>
-            <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Admin</h1>
+        </div>
+        <div class="sidebar-menu">
+            <a href="${pageContext.request.contextPath}/admin/dashboard" class="sidebar-item">
+                <i class="fa-solid fa-gauge-high"></i> <span>Tổng quan</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/user" class="sidebar-item active">
+                <i class="fa-solid fa-users"></i> <span>Người dùng</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/product" class="sidebar-item">
+                <i class="fa-solid fa-boxes-stacked"></i> <span>Sản phẩm</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/order-report" class="sidebar-item">
+                <i class="fa-solid fa-receipt"></i> <span>Đơn hàng</span>
+            </a>
+            <form action="${pageContext.request.contextPath}/logout" method="post" class="sidebar-item" style="padding: 0; margin: 0;">
+                <button type="submit" style="all: unset; width: 100%; text-align: left; padding: 0.75rem 1.5rem; color: #cbd5e1; cursor: pointer;">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Đăng xuất</span>
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="container main-content">
-        <div class="table-wrapper">
-            
-            <div class="table-title d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fa-solid fa-users-gear me-2 text-primary"></i> Quản lý Người dùng</h2>
-                <button class="btn btn-primary btn-icon-text" 
-                        onclick="window.location.href='${pageContext.request.contextPath}/user?action=add'">
-                    <i class="fa-solid fa-user-plus"></i> Thêm người dùng
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h2 class="page-title">Quản lý Người dùng</h2>
+            <div class="d-flex gap-2">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
                 </button>
+                <a href="${pageContext.request.contextPath}/user?action=add" class="btn btn-primary">
+                    <i class="fa-solid fa-user-plus"></i> Thêm người dùng
+                </a>
             </div>
+        </div>
 
-            <c:if test="${not empty error}">
-                <div class="alert alert-danger" role="alert"><i class="fa-solid fa-triangle-exclamation me-2"></i> ${error}</div>
-            </c:if>
-
-            <div class="search-filters">
-                <form action="${pageContext.request.contextPath}/user" method="get" class="row g-3 align-items-center">
-                    <input type="hidden" name="action" value="list">
-                    
-                    <div class="col-lg-3 col-md-6">
-                        <input type="text" class="form-control" name="searchFullName" value="${fn:escapeXml(searchFullName)}" placeholder="Tìm theo Tên đầy đủ...">
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6">
-                        <input type="text" class="form-control" name="searchEmail" value="${fn:escapeXml(searchEmail)}" placeholder="Tìm theo Email...">
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4">
-                        <select class="form-select" name="searchRole">
-                            <option value="">Tất cả Vai trò</option>
-                            <option value="Admin" ${"Admin" == searchRole ? "selected" : ""}>Admin</option>
-                            <option value="Seller" ${"Seller" == searchRole ? "selected" : ""}>Seller</option>
-                            <option value="Buyer" ${"Buyer" == searchRole ? "selected" : ""}>Buyer</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4">
-                        <select class="form-select" name="searchStatus">
-                            <option value="">Tất cả Trạng thái</option>
-                            <option value="Active" ${"Active" == searchStatus ? "selected" : ""}>Hoạt động</option>
-                            <option value="Deactive" ${"Deactive" == searchStatus ? "selected" : ""}>Vô hiệu hóa</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4">
-                        <button type="submit" class="btn btn-primary w-100 btn-icon-text">
-                            <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
-                        </button>
-                    </div>
-                </form>
+        <!-- Error Alert -->
+        <c:if test="${not empty error}">
+            <div class="alert alert-danger alert-dismissible fade show">
+                ${error}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+        </c:if>
 
+        <!-- Search & Filter -->
+        <div class="filter-card">
+            <form action="${pageContext.request.contextPath}/user" method="get" class="filter-row">
+                <input type="hidden" name="action" value="list">
+                <div class="filter-group">
+                    <label>Tên đầy đủ</label>
+                    <input type="text" name="searchFullName" value="${fn:escapeXml(searchFullName)}" class="form-control" placeholder="Nhập tên...">
+                </div>
+                <div class="filter-group">
+                    <label>Email</label>
+                    <input type="text" name="searchEmail" value="${fn:escapeXml(searchEmail)}" class="form-control" placeholder="Nhập email...">
+                </div>
+                <div class="filter-group">
+                    <label>Vai trò</label>
+                    <select name="searchRole" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="Admin" ${"Admin" == searchRole ? "selected" : ""}>Admin</option>
+                        <option value="Seller" ${"Seller" == searchRole ? "selected" : ""}>Seller</option>
+                        <option value="Buyer" ${"Buyer" == searchRole ? "selected" : ""}>Buyer</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Trạng thái</label>
+                    <select name="searchStatus" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="Active" ${"Active" == searchStatus ? "selected" : ""}>Hoạt động</option>
+                        <option value="Deactive" ${"Deactive" == searchStatus ? "selected" : ""}>Vô hiệu</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- User Table -->
+        <div class="table-container">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Email</th>
@@ -237,49 +390,55 @@
                     <tbody>
                         <c:forEach var="user" items="${users}">
                             <tr>
-                                <td>${user.id}</td>
+                                <td class="fw-medium">${user.id}</td>
                                 <td>${user.email}</td>
-                                <td>${user.fullName}</td>
+                                <td class="fw-semibold">${user.fullName}</td>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${user.role == 'Admin'}"><span class="badge bg-danger">ADMIN</span></c:when>
-                                        <c:when test="${user.role == 'Seller'}"><span class="badge bg-warning text-dark">SELLER</span></c:when>
-                                        <c:otherwise><span class="badge bg-secondary">BUYER</span></c:otherwise>
+                                        <c:when test="${user.role == 'Admin'}">
+                                            <span class="badge badge-admin">ADMIN</span>
+                                        </c:when>
+                                        <c:when test="${user.role == 'Seller'}">
+                                            <span class="badge badge-seller">SELLER</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge badge-buyer">BUYER</span>
+                                        </c:otherwise>
                                     </c:choose>
                                 </td>
                                 <td>
-                                    <span class="badge ${user.status == 'Active' ? 'bg-success' : 'bg-secondary'}">
+                                    <span class="badge ${user.status == 'Active' ? 'badge-active' : 'badge-inactive'}">
                                         ${user.status == 'Active' ? 'Hoạt động' : 'Vô hiệu'}
                                     </span>
                                 </td>
                                 <td>${user.createdAt}</td>
-                                <td class="text-center action-buttons">
+                                <td class="text-center">
                                     <a href="${pageContext.request.contextPath}/user?action=edit&id=${user.id}"
-                                        class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                       class="btn action-btn btn-edit" title="Sửa">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    
+
                                     <c:choose>
                                         <c:when test="${user.status == 'Active'}">
                                             <a href="${pageContext.request.contextPath}/user?action=deactive&id=${user.id}"
-                                               class="btn btn-sm btn-outline-secondary" title="Vô hiệu hóa"
-                                               onclick="return confirm('Bạn có chắc muốn VÔ HIỆU HÓA người dùng này không?')">
-                                               <i class="fa-solid fa-lock"></i>
+                                               class="btn action-btn btn-deactive" title="Vô hiệu hóa"
+                                               onclick="return confirm('Vô hiệu hóa người dùng này?')">
+                                                <i class="fa-solid fa-lock"></i>
                                             </a>
                                         </c:when>
                                         <c:otherwise>
                                             <a href="${pageContext.request.contextPath}/user?action=active&id=${user.id}"
-                                               class="btn btn-sm btn-outline-success" title="Kích hoạt"
-                                               onclick="return confirm('Bạn có chắc muốn KÍCH HOẠT người dùng này không?')">
-                                               <i class="fa-solid fa-lock-open"></i>
+                                               class="btn action-btn btn-active" title="Kích hoạt"
+                                               onclick="return confirm('Kích hoạt người dùng này?')">
+                                                <i class="fa-solid fa-lock-open"></i>
                                             </a>
                                         </c:otherwise>
                                     </c:choose>
-                                    
+
                                     <a href="${pageContext.request.contextPath}/user?action=delete&id=${user.id}"
-                                       class="btn btn-sm btn-outline-danger" title="Xóa"
-                                       onclick="return confirm('Bạn có chắc muốn XÓA người dùng này không?')">
-                                       <i class="fa-solid fa-trash-can"></i>
+                                       class="btn action-btn btn-delete" title="Xóa"
+                                       onclick="return confirm('XÓA người dùng này?')">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -287,41 +446,56 @@
                     </tbody>
                 </table>
             </div>
-
-            <c:if test="${totalPages > 1}">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
-                        <c:if test="${currentPage > 1}">
-                            <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user?page=${currentPage-1}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">
-                                    <i class="fa-solid fa-angle-left"></i>
-                                </a>
-                            </li>
-                        </c:if>
-                        
-                        <c:forEach begin="1" end="${totalPages}" var="i">
-                            <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user?page=${i}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">${i}</a>
-                            </li>
-                        </c:forEach>
-                        
-                        <c:if test="${currentPage < totalPages}">
-                            <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user?page=${currentPage+1}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">
-                                    <i class="fa-solid fa-angle-right"></i>
-                                </a>
-                            </li>
-                        </c:if>
-                    </ul>
-                </nav>
-            </c:if>
         </div>
+
+        <!-- Pagination -->
+        <c:if test="${totalPages > 1}">
+            <nav class="mt-4 d-flex justify-content-center">
+                <ul class="pagination">
+                    <c:if test="${currentPage > 1}">
+                        <li class="page-item">
+                            <a class="page-link" href="${pageContext.request.contextPath}/user?page=${currentPage-1}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">
+                                Trước
+                            </a>
+                        </li>
+                    </c:if>
+
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/user?page=${i}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">${i}</a>
+                        </li>
+                    </c:forEach>
+
+                    <c:if test="${currentPage < totalPages}">
+                        <li class="page-item">
+                            <a class="page-link" href="${pageContext.request.contextPath}/user?page=${currentPage+1}&searchFullName=${fn:escapeXml(searchFullName)}&searchEmail=${fn:escapeXml(searchEmail)}&searchRole=${fn:escapeXml(searchRole)}&searchStatus=${fn:escapeXml(searchStatus)}">
+                                Sau
+                            </a>
+                        </li>
+                    </c:if>
+                </ul>
+            </nav>
+        </c:if>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <div class="footer">
-        © 2025 Online Market Admin | Được phát triển bởi Your Team
-    </div>
+    <script>
+        // Dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('admin-theme', newTheme);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('admin-theme');
+            if (saved) document.body.setAttribute('data-theme', saved);
+            else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.setAttribute('data-theme', 'dark');
+            }
+        });
+    </script>
 </body>
 </html>
