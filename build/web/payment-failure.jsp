@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh toán thành công - Online Market</title>
+    <title>Thanh toán thất bại - Online Market</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -19,9 +19,9 @@
             background-color: #5d37a8;
             border-color: #5d37a8;
         }
-        .success-icon {
+        .fail-icon {
             font-size: 100px;
-            color: #28a745;
+            color: #dc3545;
         }
     </style>
 </head>
@@ -30,24 +30,24 @@
 <div class="container text-center mt-5">
     <div class="card shadow-lg p-5 mx-auto" style="max-width: 600px;">
         <div class="card-body">
-            <i class="fas fa-check-circle success-icon mb-4"></i>
-            <h2 class="text-success mb-3">Thanh toán thành công!</h2>
-            <p class="lead">Cảm ơn bạn đã mua hàng tại <strong>Online Market</strong>.</p>
-            
-            <c:if test="${param.orderId != null}">
-                <p class="mt-3">Mã đơn hàng của bạn là: 
-                    <strong class="text-primary">#${param.orderId}</strong>
+            <i class="fas fa-times-circle fail-icon mb-4"></i>
+            <h2 class="text-danger mb-3">Thanh toán thất bại!</h2>
+            <p class="lead">Rất tiếc, giao dịch của bạn không thành công hoặc đã bị hủy.</p>
+
+            <c:if test="${param.vnp_ResponseCode != null}">
+                <p>Mã lỗi giao dịch: 
+                    <strong class="text-primary">${param.vnp_ResponseCode}</strong>
                 </p>
             </c:if>
 
-            <p>Chúng tôi sẽ xử lý đơn hàng và liên hệ sớm nhất khi giao hàng.</p>
+            <p>Bạn có thể thử lại hoặc chọn phương thức thanh toán khác.</p>
 
             <div class="mt-4">
-                <a href="home" class="btn btn-primary">
-                    <i class="fas fa-home me-2"></i> Quay về trang chủ
+                <a href="cart.jsp" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-2"></i> Quay lại giỏ hàng
                 </a>
-                <a href="order" class="btn btn-outline-success">
-                    <i class="fas fa-list me-2"></i> Xem đơn hàng
+                <a href="home" class="btn btn-outline-danger">
+                    <i class="fas fa-home me-2"></i> Trang chủ
                 </a>
             </div>
         </div>
