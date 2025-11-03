@@ -38,7 +38,7 @@ public class SellerOrderManageServlet extends HttpServlet {
 
         List<Order> orders = orderDAO.searchOrdersWithoutShipment(keyword, page, size);
         int total = orderDAO.countOrdersWithoutShipment(keyword);
-
+        System.out.println(orders.size());
         // nạp items để xem chi tiết trong modal (nếu cần)
         List<Integer> orderIds = orders.stream().map(Order::getOrderId).collect(Collectors.toList());
         Map<Integer, List<entity.OrderItem>> itemsMap = orderItemDAO.getItemsByOrderIds(orderIds);

@@ -7,10 +7,6 @@
             <i class="fas fa-home"></i>
             Dashboard
         </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-users"></i>
-            Quản lý Users
-        </a>
          <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="menu-item">
             <i class="fas fa-warehouse"></i>
             Quản lý Kho

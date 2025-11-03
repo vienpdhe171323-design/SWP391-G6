@@ -222,7 +222,7 @@ public class OrderDAO extends DBContext {
         StringBuilder sql = new StringBuilder(
                 "SELECT o.OrderId, o.UserId, u.FullName, o.OrderDate, o.TotalAmount, o.Status "
                 + "FROM Orders o JOIN Users u ON o.UserId = u.UserId "
-                + "WHERE (o.Status IN ('Completed','Confirmed')) "
+                + "WHERE (o.Status IN ('Completed','Confirmed', 'Pending')) "
                 + "AND NOT EXISTS (SELECT 1 FROM Shipments s WHERE s.OrderId = o.OrderId) "
         );
         if (keyword != null && !(keyword = keyword.trim()).isEmpty()) {

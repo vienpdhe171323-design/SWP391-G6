@@ -33,7 +33,7 @@ public class WarehouseServlet extends HttpServlet {
 
         WarehouseDAO dao = new WarehouseDAO();
         PagedResult<Warehouse> result = dao.searchActive(search, page, size);
-
+        
         req.setAttribute("result", result);
         req.setAttribute("search", search == null ? "" : search);
         req.setAttribute("size", size);

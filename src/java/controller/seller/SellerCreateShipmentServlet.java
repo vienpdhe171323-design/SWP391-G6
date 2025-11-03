@@ -9,7 +9,6 @@ import entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 @WebServlet("/seller/create-shipment")
 public class SellerCreateShipmentServlet extends HttpServlet {

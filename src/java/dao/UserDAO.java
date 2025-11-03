@@ -434,6 +434,10 @@ public List<User> getUsersByRole(String role) {
 }
     public static void main(String[] args) {
         UserDAO o = new UserDAO();
-        o.login("admin@example.com", "admin123");
+        User u = new User();
+        u.setEmail("admin@example.com");
+        u.setFullName("Thai Admin");
+        u.setRole("Admin");
+        o.add(u);
     }
 }

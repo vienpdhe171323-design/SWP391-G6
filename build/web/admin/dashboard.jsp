@@ -280,6 +280,9 @@
             <a href="${pageContext.request.contextPath}/product" class="sidebar-item">
                 <i class="fa-solid fa-boxes-stacked"></i> <span>Sản phẩm</span>
             </a>
+            <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="sidebar-item">
+                <i class="fa-solid fa-boxes-stacked"></i> <span>Quản lý kho</span>
+            </a>
             <a href="${pageContext.request.contextPath}/order-report" class="sidebar-item">
                 <i class="fa-solid fa-receipt"></i> <span>Đơn hàng</span>
             </a>
