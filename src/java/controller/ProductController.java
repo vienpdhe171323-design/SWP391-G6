@@ -5,8 +5,10 @@ import dao.ProductDAO;
 import dao.StoreDAO;
 import dao.CategoryDAO;
 import dao.ProductAttributeDAO;
+import dao.ReviewDAO;
 import entity.Product;
 import entity.ProductBox;
+import entity.Review;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -221,6 +223,16 @@ public class ProductController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         ProductBox box = productDAO.getProductBoxById(id);
         request.setAttribute("productBox", box);
+
+        ReviewDAO reviewDAO = new ReviewDAO();
+        List<Review> reviews = reviewDAO.getReviewsByProductId(id);
+        double avgRating = reviewDAO.getAverageRating(id);
+        int reviewCount = reviewDAO.countReviews(id);
+
+        request.setAttribute("productBox", box);
+        request.setAttribute("reviews", reviews);
+        request.setAttribute("avgRating", avgRating);
+        request.setAttribute("reviewCount", reviewCount);
         request.getRequestDispatcher("product/detail.jsp").forward(request, response);
     }
 
