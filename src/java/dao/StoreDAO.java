@@ -5,43 +5,42 @@ import util.DBContext;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Admin
  */
 public class StoreDAO extends DBContext {
-    
-    
-    public List<Store> getTopStores(int limit) {
-    List<Store> list = new ArrayList<>();
-    String sql = "SELECT TOP (?) StoreId, StoreName, CreatedAt "
-               + "FROM Stores "
-               + "ORDER BY StoreId DESC";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, limit);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Store s = new Store();
-            s.setStoreId(rs.getInt("StoreId"));
-            s.setStoreName(rs.getString("StoreName"));
-            s.setCreatedAt(rs.getDate("CreatedAt"));
-            list.add(s);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return list;
-}
 
+    public List<Store> getTopStores(int limit) {
+        List<Store> list = new ArrayList<>();
+        String sql = "SELECT TOP (?) StoreId, StoreName, CreatedAt "
+                + "FROM Stores "
+                + "ORDER BY StoreId DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Store s = new Store();
+                s.setStoreId(rs.getInt("StoreId"));
+                s.setStoreName(rs.getString("StoreName"));
+                s.setCreatedAt(rs.getDate("CreatedAt"));
+                list.add(s);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     // 🔹 Lấy danh sách tất cả store (id + name)
     public List<Store> getAllStores() {
         List<Store> list = new ArrayList<>();
         String sql = "SELECT StoreId, StoreName, Status FROM Stores";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Store s = new Store();
@@ -61,10 +60,10 @@ public class StoreDAO extends DBContext {
     public List<Store> getAllStoresWithPaging(int pageIndex) {
         List<Store> list = new ArrayList<>();
         String sql = "SELECT s.StoreId, s.UserId, s.StoreName, s.CreatedAt, s.Status, u.FullName AS OwnerName "
-                   + "FROM Stores s "
-                   + "JOIN Users u ON s.UserId = u.UserId "
-                   + "ORDER BY s.StoreId ASC "
-                   + "OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
+                + "FROM Stores s "
+                + "JOIN Users u ON s.UserId = u.UserId "
+                + "ORDER BY s.StoreId ASC "
+                + "OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, (pageIndex - 1) * 5);
@@ -91,9 +90,10 @@ public class StoreDAO extends DBContext {
     // 🔹 Đếm tổng số store trong hệ thống
     public int countAllStores() {
         String sql = "SELECT COUNT(*) FROM Stores";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -104,11 +104,11 @@ public class StoreDAO extends DBContext {
     public List<Store> getStoresByUserWithPaging(int userId, int pageIndex) {
         List<Store> list = new ArrayList<>();
         String sql = "SELECT s.StoreId, s.UserId, s.StoreName, s.CreatedAt, s.Status, u.FullName AS OwnerName "
-                   + "FROM Stores s "
-                   + "JOIN Users u ON s.UserId = u.UserId "
-                   + "WHERE s.UserId = ? "
-                   + "ORDER BY s.StoreId ASC "
-                   + "OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
+                + "FROM Stores s "
+                + "JOIN Users u ON s.UserId = u.UserId "
+                + "WHERE s.UserId = ? "
+                + "ORDER BY s.StoreId ASC "
+                + "OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -139,7 +139,9 @@ public class StoreDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -164,9 +166,9 @@ public class StoreDAO extends DBContext {
     // 🔹 Lấy store theo Id
     public Store getStoreById(int storeId) {
         String sql = "SELECT s.StoreId, s.UserId, s.StoreName, s.CreatedAt, s.Status, u.FullName AS OwnerName "
-                   + "FROM Stores s "
-                   + "JOIN Users u ON s.UserId = u.UserId "
-                   + "WHERE s.StoreId = ?";
+                + "FROM Stores s "
+                + "JOIN Users u ON s.UserId = u.UserId "
+                + "WHERE s.StoreId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, storeId);
             ResultSet rs = ps.executeQuery();
@@ -217,10 +219,10 @@ public class StoreDAO extends DBContext {
     public List<Store> searchStoresByName(String keyword) {
         List<Store> list = new ArrayList<>();
         String sql = "SELECT s.StoreId, s.UserId, s.StoreName, s.CreatedAt, s.Status, u.FullName AS OwnerName "
-                   + "FROM Stores s "
-                   + "JOIN Users u ON s.UserId = u.UserId "
-                   + "WHERE s.StoreName LIKE ? "
-                   + "ORDER BY s.CreatedAt DESC";
+                + "FROM Stores s "
+                + "JOIN Users u ON s.UserId = u.UserId "
+                + "WHERE s.StoreName LIKE ? "
+                + "ORDER BY s.CreatedAt DESC";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, "%" + keyword + "%");
             ResultSet rs = ps.executeQuery();
@@ -252,8 +254,8 @@ public class StoreDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    
-        public static void main(String[] args) {
+
+    public static void main(String[] args) {
         StoreDAO dao = new StoreDAO();
 
         System.out.println("===== TEST getAllStores() =====");
@@ -264,28 +266,53 @@ public class StoreDAO extends DBContext {
         } else {
             for (Store s : stores) {
                 System.out.println(
-                        "ID: " + s.getStoreId() +
-                        " | Name: " + s.getStoreName() +
-                        " | Status: " + s.getStatus()
+                        "ID: " + s.getStoreId()
+                        + " | Name: " + s.getStoreName()
+                        + " | Status: " + s.getStatus()
                 );
             }
         }
 
         System.out.println("===== END TEST =====");
     }
-        
-        public int countStores() {
-    int count = 0;
-    String sql = "SELECT COUNT(*) FROM Stores";
+
+    public int countStores() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM Stores";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+public Map<Integer, Integer> getProductCountOfStores() {
+    Map<Integer, Integer> map = new HashMap<>();
+
+    String sql = """
+        SELECT s.StoreId, COUNT(p.ProductId) AS ProductCount
+        FROM Stores s
+        LEFT JOIN Products p ON s.StoreId = p.StoreId
+        GROUP BY s.StoreId
+        ORDER BY ProductCount DESC
+    """;
+
     try (PreparedStatement ps = connection.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
-            count = rs.getInt(1);
+
+        while (rs.next()) {
+            map.put(rs.getInt("StoreId"), rs.getInt("ProductCount"));
         }
+
     } catch (SQLException e) {
         e.printStackTrace();
     }
-    return count;
+
+    return map;
 }
+
 
 }
