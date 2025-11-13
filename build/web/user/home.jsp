@@ -327,8 +327,7 @@
                         <!-- KIỂM TRA ĐĂNG NHẬP -->
                         <c:choose>
                             <c:when test="${sessionScope.user != null}">
-                                <!-- ĐÃ ĐĂNG NHẬP -->
-                       <li class="nav-item dropdown">
+              <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
         <i class="fas fa-user-circle me-1"></i>
         Chào, <strong>${sessionScope.user.fullName != null ? sessionScope.user.fullName : sessionScope.user.username}</strong>
@@ -348,10 +347,16 @@
             </a>
         </li>
 
-        <!-- ⭐ Mục mới: Cửa hàng đang theo dõi -->
         <li>
             <a class="dropdown-item" href="${pageContext.request.contextPath}/followed-stores">
-                <i class="fas fa-heart me-2 text-danger"></i> Cửa hàng đang theo dõi
+                <i class="fas fa-store me-2 text-primary"></i> Cửa hàng đang theo dõi
+            </a>
+        </li>
+
+        <!-- ⭐ NEW: Sản phẩm yêu thích -->
+        <li>
+            <a class="dropdown-item" href="${pageContext.request.contextPath}/wishlist">
+                <i class="fas fa-heart me-2 text-danger"></i> Sản phẩm yêu thích
             </a>
         </li>
 
@@ -367,6 +372,7 @@
 
     </ul>
 </li>
+
 
                             </c:when>
                             <c:otherwise>
@@ -449,79 +455,79 @@
                         </ul>
                     </div>
 
-                   <!-- Cửa hàng nổi bật -->
-<div class="sidebar-card store-highlight">
+                    <!-- Cửa hàng nổi bật -->
+                    <div class="sidebar-card store-highlight">
 
-    <!-- Header -->
-    <div class="sidebar-header" style="background:#ffb300; color:#333;">
-        <i class="fas fa-store me-2"></i> Cửa hàng nổi bật
-    </div>
+                        <!-- Header -->
+                        <div class="sidebar-header" style="background:#ffb300; color:#333;">
+                            <i class="fas fa-store me-2"></i> Cửa hàng nổi bật
+                        </div>
 
-    <!-- Top 5 Store -->
-    <ul id="topStoreList" class="list-group list-group-flush">
-        <c:forEach var="s" items="${topStores}">
-            <li class="list-group-item d-flex justify-content-between align-items-center small">
-                
-                <!-- Store name -->
-                <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
+                        <!-- Top 5 Store -->
+                        <ul id="topStoreList" class="list-group list-group-flush">
+                            <c:forEach var="s" items="${topStores}">
+                                <li class="list-group-item d-flex justify-content-between align-items-center small">
 
-                   class="fw-bold text-decoration-none"
-                   style="color:#333;">
-                    ${s.storeName}
-                </a>
+                                    <!-- Store name -->
+                                    <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
 
-                <!-- Product count -->
-                <span class="badge bg-primary">
-                    ${productCountMap[s.storeId]} SP
-                </span>
-            </li>
-        </c:forEach>
-    </ul>
+                                       class="fw-bold text-decoration-none"
+                                       style="color:#333;">
+                                        ${s.storeName}
+                                    </a>
 
-    <!-- ALL STORES (hidden by default) -->
-    <ul id="allStoreList" class="list-group list-group-flush" style="display:none;">
-        <c:forEach var="s" items="${allStores}">
-            <li class="list-group-item d-flex justify-content-between align-items-center small">
+                                    <!-- Product count -->
+                                    <span class="badge bg-primary">
+                                        ${productCountMap[s.storeId]} SP
+                                    </span>
+                                </li>
+                            </c:forEach>
+                        </ul>
 
-                <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
+                        <!-- ALL STORES (hidden by default) -->
+                        <ul id="allStoreList" class="list-group list-group-flush" style="display:none;">
+                            <c:forEach var="s" items="${allStores}">
+                                <li class="list-group-item d-flex justify-content-between align-items-center small">
 
-                   class="fw-bold text-decoration-none"
-                   style="color:#333;">
-                    ${s.storeName}
-                </a>
+                                    <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
 
-                <span class="badge bg-primary">
-                    ${productCountMap[s.storeId]} SP
-                </span>
-            </li>
-        </c:forEach>
-    </ul>
+                                       class="fw-bold text-decoration-none"
+                                       style="color:#333;">
+                                        ${s.storeName}
+                                    </a>
 
-    <!-- Toggle button -->
-    <div class="text-center mt-2">
-        <button id="toggleBtn" class="btn btn-sm btn-outline-dark">Xem tất cả</button>
-    </div>
-</div>
+                                    <span class="badge bg-primary">
+                                        ${productCountMap[s.storeId]} SP
+                                    </span>
+                                </li>
+                            </c:forEach>
+                        </ul>
 
-<script>
-    const toggleBtn = document.getElementById("toggleBtn");
-    const topList = document.getElementById("topStoreList");
-    const allList = document.getElementById("allStoreList");
+                        <!-- Toggle button -->
+                        <div class="text-center mt-2">
+                            <button id="toggleBtn" class="btn btn-sm btn-outline-dark">Xem tất cả</button>
+                        </div>
+                    </div>
 
-    toggleBtn.addEventListener("click", () => {
-        if (allList.style.display === "none") {
-            // show all stores
-            allList.style.display = "block";
-            topList.style.display = "none";
-            toggleBtn.textContent = "Thu gọn";
-        } else {
-            // show only top 5
-            allList.style.display = "none";
-            topList.style.display = "block";
-            toggleBtn.textContent = "Xem tất cả";
-        }
-    });
-</script>
+                    <script>
+                        const toggleBtn = document.getElementById("toggleBtn");
+                        const topList = document.getElementById("topStoreList");
+                        const allList = document.getElementById("allStoreList");
+
+                        toggleBtn.addEventListener("click", () => {
+                            if (allList.style.display === "none") {
+                                // show all stores
+                                allList.style.display = "block";
+                                topList.style.display = "none";
+                                toggleBtn.textContent = "Thu gọn";
+                            } else {
+                                // show only top 5
+                                allList.style.display = "none";
+                                topList.style.display = "block";
+                                toggleBtn.textContent = "Xem tất cả";
+                            }
+                        });
+                    </script>
 
 
                 </div>
