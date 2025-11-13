@@ -1,6 +1,9 @@
 package controller;
 
 import dao.AttributeDAO;
+import dao.WishlistDAO;
+import entity.User;
+
 import dao.ProductDAO;
 import dao.StoreDAO;
 import dao.CategoryDAO;
@@ -218,23 +221,45 @@ public class ProductController extends HttpServlet {
         response.sendRedirect("product?action=list");
     }
 
-    private void viewDetail(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        ProductBox box = productDAO.getProductBoxById(id);
-        request.setAttribute("productBox", box);
+private void viewDetail(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        ReviewDAO reviewDAO = new ReviewDAO();
-        List<Review> reviews = reviewDAO.getReviewsByProductId(id);
-        double avgRating = reviewDAO.getAverageRating(id);
-        int reviewCount = reviewDAO.countReviews(id);
+    int id = Integer.parseInt(request.getParameter("id"));
 
-        request.setAttribute("productBox", box);
-        request.setAttribute("reviews", reviews);
-        request.setAttribute("avgRating", avgRating);
-        request.setAttribute("reviewCount", reviewCount);
-        request.getRequestDispatcher("product/detail.jsp").forward(request, response);
+    // ================== LOAD PRODUCT ==================
+    ProductBox box = productDAO.getProductBoxById(id);
+    request.setAttribute("productBox", box);
+
+    // ================== LOAD REVIEWS ==================
+    ReviewDAO reviewDAO = new ReviewDAO();
+    List<Review> reviews = reviewDAO.getReviewsByProductId(id);
+    double avgRating = reviewDAO.getAverageRating(id);
+    int reviewCount = reviewDAO.countReviews(id);
+
+    request.setAttribute("reviews", reviews);
+    request.setAttribute("avgRating", avgRating);
+    request.setAttribute("reviewCount", reviewCount);
+
+    // ================== WISHLIST CHECK ==================
+    WishlistDAO wishlistDAO = new WishlistDAO();
+
+    boolean isWishlisted = false;   // default
+    User sessionUser = (User) request.getSession().getAttribute("user");
+
+    if (sessionUser != null) {
+        int userId = sessionUser.getId();
+        // ĐÚNG TÊN HÀM DAO
+        isWishlisted = wishlistDAO.isWishlisted(userId, id);
     }
+
+    request.setAttribute("isWishlisted", isWishlisted);
+
+    // ======================================================
+
+    request.getRequestDispatcher("product/detail.jsp").forward(request, response);
+}
+
+
 
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
