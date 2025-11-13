@@ -293,17 +293,23 @@
             <h1>Admin</h1>
         </div>
         <div class="sidebar-menu">
-            <a href="${pageContext.request.contextPath}/admin/dashboard" class="sidebar-item">
+            <a href="${pageContext.request.contextPath}/admin/dashboard" class="sidebar-item active">
                 <i class="fa-solid fa-gauge-high"></i> <span>Tổng quan</span>
             </a>
-            <a href="${pageContext.request.contextPath}/user" class="sidebar-item active">
+            <a href="${pageContext.request.contextPath}/user" class="sidebar-item">
                 <i class="fa-solid fa-users"></i> <span>Người dùng</span>
             </a>
             <a href="${pageContext.request.contextPath}/product" class="sidebar-item">
                 <i class="fa-solid fa-boxes-stacked"></i> <span>Sản phẩm</span>
             </a>
+            <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="sidebar-item">
+                <i class="fa-solid fa-boxes-stacked"></i> <span>Quản lý kho</span>
+            </a>
             <a href="${pageContext.request.contextPath}/order-report" class="sidebar-item">
                 <i class="fa-solid fa-receipt"></i> <span>Đơn hàng</span>
+            </a>
+                      <a href="${pageContext.request.contextPath}/admin/stock-report" class="sidebar-item">
+                <i class="fa-solid fa-receipt"></i> <span>Báo cáo tồn kho</span>
             </a>
             <form action="${pageContext.request.contextPath}/logout" method="post" class="sidebar-item" style="padding: 0; margin: 0;">
                 <button type="submit" style="all: unset; width: 100%; text-align: left; padding: 0.75rem 1.5rem; color: #cbd5e1; cursor: pointer;">
