@@ -75,8 +75,6 @@
                         </c:forEach>
                     </select>
                 </form>
-                
-   
 
                 <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                     <button class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#createStoreModal">
@@ -85,10 +83,6 @@
                 </c:if>
             </div>
         </div>
-        
-                     <button onclick="window.history.back()" class="btn-back">
-    <i class="fa-solid fa-arrow-left"></i> Quay lại
-</button>
         
         <c:if test="${not empty message}">
             <div class="alert alert-success" role="alert">
@@ -111,7 +105,7 @@
                             <th>Chủ cửa hàng</th>
                         </c:if>
                         <th>Ngày tạo</th>
-                        <th>Trạng thái</th> <!-- ✅ Thêm cột mới -->
+                        <th>Trạng thái</th>
                         <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                             <th class="text-center">Hành động</th>
                         </c:if>
@@ -144,18 +138,20 @@
 
                             <c:if test="${fn:toLowerCase(sessionScope.user.role) eq 'admin'}">
                                 <td class="text-center action-buttons">
+                                    <!-- ✏️ Chỉnh sửa -->
                                     <a class="btn btn-sm btn-outline-warning" 
                                        href="store?action=edit&id=${s.storeId}" title="Chỉnh sửa">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
 
+                                    <!-- 🗑️ Xóa -->
                                     <a class="btn btn-sm btn-outline-danger" 
                                        href="store?action=delete&id=${s.storeId}" title="Xóa"
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa cửa hàng [${s.storeName}]?');">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
 
-                                    <!-- ✅ Nút Suspend / Activate -->
+                                    <!-- ⏸️ Suspend / Activate -->
                                     <c:choose>
                                         <c:when test="${s.status eq 'Active'}">
                                             <a class="btn btn-sm btn-outline-secondary"
@@ -174,6 +170,13 @@
                                             </a>
                                         </c:when>
                                     </c:choose>
+
+                                    <!-- 📊 Xem báo cáo -->
+                                    <a class="btn btn-sm btn-outline-info"
+                                       href="store-report?action=view&storeId=${s.storeId}&storeName=${fn:escapeXml(s.storeName)}"
+                                       title="Xem báo cáo hiệu suất cửa hàng">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                    </a>
                                 </td>
                             </c:if>
                         </tr>
