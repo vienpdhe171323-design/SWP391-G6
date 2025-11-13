@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -326,24 +328,46 @@
                         <c:choose>
                             <c:when test="${sessionScope.user != null}">
                                 <!-- ĐÃ ĐĂNG NHẬP -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-user-circle me-1"></i>
-                                        Chào, <strong>${sessionScope.user.fullName != null ? sessionScope.user.fullName : sessionScope.user.username}</strong>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="profile"><i class="fas fa-user me-2"></i> Hồ sơ</a></li>
-                                        <li><a class="dropdown-item" href="order"><i class="fas fa-history me-2"></i> Lịch sử mua</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form action="${pageContext.request.contextPath}/logout" method="post" class="d-inline">
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </li>
+                       <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+        <i class="fas fa-user-circle me-1"></i>
+        Chào, <strong>${sessionScope.user.fullName != null ? sessionScope.user.fullName : sessionScope.user.username}</strong>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end">
+
+        <li>
+            <a class="dropdown-item" href="${pageContext.request.contextPath}/profile">
+                <i class="fas fa-user me-2"></i> Hồ sơ
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item" href="${pageContext.request.contextPath}/order">
+                <i class="fas fa-history me-2"></i> Lịch sử mua
+            </a>
+        </li>
+
+        <!-- ⭐ Mục mới: Cửa hàng đang theo dõi -->
+        <li>
+            <a class="dropdown-item" href="${pageContext.request.contextPath}/followed-stores">
+                <i class="fas fa-heart me-2 text-danger"></i> Cửa hàng đang theo dõi
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+            <form action="${pageContext.request.contextPath}/logout" method="post" class="d-inline">
+                <button type="submit" class="dropdown-item text-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                </button>
+            </form>
+        </li>
+
+    </ul>
+</li>
+
                             </c:when>
                             <c:otherwise>
                                 <!-- CHƯA ĐĂNG NHẬP -->
@@ -425,20 +449,81 @@
                         </ul>
                     </div>
 
-                    <!-- Cửa hàng nổi bật -->
-                    <div class="sidebar-card store-highlight">
-                        <div class="sidebar-header" style="background: #ffb300; color: #333;">
-                            <i class="fas fa-store me-2"></i> Cửa hàng nổi bật
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <c:forEach var="s" items="${topStores}">
-                                <li class="list-group-item d-flex justify-content-between align-items-center small">
-                                    <span>${s.storeName}</span>
-                                    <span class="text-muted">${s.createdAt}</span>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </div>
+                   <!-- Cửa hàng nổi bật -->
+<div class="sidebar-card store-highlight">
+
+    <!-- Header -->
+    <div class="sidebar-header" style="background:#ffb300; color:#333;">
+        <i class="fas fa-store me-2"></i> Cửa hàng nổi bật
+    </div>
+
+    <!-- Top 5 Store -->
+    <ul id="topStoreList" class="list-group list-group-flush">
+        <c:forEach var="s" items="${topStores}">
+            <li class="list-group-item d-flex justify-content-between align-items-center small">
+                
+                <!-- Store name -->
+                <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
+
+                   class="fw-bold text-decoration-none"
+                   style="color:#333;">
+                    ${s.storeName}
+                </a>
+
+                <!-- Product count -->
+                <span class="badge bg-primary">
+                    ${productCountMap[s.storeId]} SP
+                </span>
+            </li>
+        </c:forEach>
+    </ul>
+
+    <!-- ALL STORES (hidden by default) -->
+    <ul id="allStoreList" class="list-group list-group-flush" style="display:none;">
+        <c:forEach var="s" items="${allStores}">
+            <li class="list-group-item d-flex justify-content-between align-items-center small">
+
+                <a href="${pageContext.request.contextPath}/store/detail?id=${s.storeId}"
+
+                   class="fw-bold text-decoration-none"
+                   style="color:#333;">
+                    ${s.storeName}
+                </a>
+
+                <span class="badge bg-primary">
+                    ${productCountMap[s.storeId]} SP
+                </span>
+            </li>
+        </c:forEach>
+    </ul>
+
+    <!-- Toggle button -->
+    <div class="text-center mt-2">
+        <button id="toggleBtn" class="btn btn-sm btn-outline-dark">Xem tất cả</button>
+    </div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById("toggleBtn");
+    const topList = document.getElementById("topStoreList");
+    const allList = document.getElementById("allStoreList");
+
+    toggleBtn.addEventListener("click", () => {
+        if (allList.style.display === "none") {
+            // show all stores
+            allList.style.display = "block";
+            topList.style.display = "none";
+            toggleBtn.textContent = "Thu gọn";
+        } else {
+            // show only top 5
+            allList.style.display = "none";
+            topList.style.display = "block";
+            toggleBtn.textContent = "Xem tất cả";
+        }
+    });
+</script>
+
+
                 </div>
 
                 <!-- Product Grid -->
