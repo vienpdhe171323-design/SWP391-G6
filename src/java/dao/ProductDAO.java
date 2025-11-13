@@ -357,18 +357,55 @@ public class ProductDAO extends DBContext {
         }
         return 0;
     }
-    
-    // Giảm hoặc tăng tồn kho của sản phẩm
-public void updateStock(int productId, int quantityChange) {
-    String sql = "UPDATE Products SET Stock = Stock + ? WHERE ProductId = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, quantityChange);
-        ps.setInt(2, productId);
-        ps.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
 
+    // Giảm hoặc tăng tồn kho của sản phẩm
+    public void updateStock(int productId, int quantityChange) {
+        String sql = "UPDATE Products SET Stock = Stock + ? WHERE ProductId = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, quantityChange);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Product> getProductsByStore(int storeId) {
+        List<Product> list = new ArrayList<>();
+
+        String sql = """
+        SELECT p.ProductId, p.ProductName, p.Price, p.Stock, p.Status, p.ImageUrl,
+               s.StoreName, c.CategoryName
+        FROM Products p
+        JOIN Stores s ON p.StoreId = s.StoreId
+        JOIN Categories c ON p.CategoryId = c.CategoryId
+        WHERE p.StoreId = ?
+        ORDER BY p.ProductId DESC
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, storeId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("ProductId"));
+                p.setProductName(rs.getString("ProductName"));
+                p.setPrice(rs.getBigDecimal("Price"));
+                p.setStock(rs.getInt("Stock"));
+                p.setStatus(rs.getString("Status"));
+                p.setImageUrl(rs.getString("ImageUrl"));
+                p.setStoreName(rs.getString("StoreName"));
+                p.setCategoryName(rs.getString("CategoryName"));
+
+                list.add(p);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
 }
