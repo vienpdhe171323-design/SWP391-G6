@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet("/home")
 public class HomeController extends HttpServlet {
@@ -21,7 +23,6 @@ public class HomeController extends HttpServlet {
     private final ProductDAO productDAO = new ProductDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
     private final StoreDAO storeDAO = new StoreDAO();
-
     private final HomePageDAO homePageDAO = new HomePageDAO();
 
     @Override
@@ -32,11 +33,15 @@ public class HomeController extends HttpServlet {
         String pageParam = request.getParameter("page");
         String keyword = request.getParameter("keyword");
 
-        Integer categoryId = (categoryParam != null && !categoryParam.isEmpty()) ? Integer.parseInt(categoryParam) : null;
-        int pageIndex = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
+        Integer categoryId = (categoryParam != null && !categoryParam.isEmpty())
+                ? Integer.parseInt(categoryParam) : null;
+
+        int pageIndex = (pageParam != null && !pageParam.isEmpty())
+                ? Integer.parseInt(pageParam) : 1;
+
         int pageSize = 10;
 
-        // Danh mục sidebar
+        // Sidebar categories
         request.setAttribute("categories", categoryDAO.getAllCategories());
         request.setAttribute("selectedCategoryId", categoryId);
 
@@ -44,15 +49,17 @@ public class HomeController extends HttpServlet {
         int totalProducts;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            // Tìm kiếm theo từ khóa
+            // Search
             products = productDAO.searchProductsByName(keyword, pageIndex, pageSize);
             totalProducts = productDAO.getTotalProductCountByName(keyword);
+
         } else if (categoryId != null) {
-            // Lọc theo danh mục
+            // Filter by category
             products = productDAO.getProductsByCategoryAndPage(categoryId, pageIndex);
             totalProducts = productDAO.getTotalProductCountByCategory(categoryId);
+
         } else {
-            // Lấy tất cả sản phẩm
+            // All products
             products = productDAO.getProductsByPage(pageIndex);
             totalProducts = productDAO.getTotalProductCount();
         }
@@ -62,8 +69,33 @@ public class HomeController extends HttpServlet {
         request.setAttribute("products", products);
         request.setAttribute("pageIndex", pageIndex);
         request.setAttribute("totalPages", totalPages);
-        request.setAttribute("topStores", storeDAO.getTopStores(5));
 
+        // ============================
+        // 🔥 HANDLE STORE LIST SECTION
+        // ============================
+
+        // 1. Lấy productCountMap {storeId -> số sản phẩm}
+        Map<Integer, Integer> productCountMap = storeDAO.getProductCountOfStores();
+
+        // 2. Lấy toàn bộ store
+        List<entity.Store> allStores = storeDAO.getAllStores();
+
+        // 3. Sắp xếp store theo số sản phẩm giảm dần
+        allStores.sort((a, b) -> {
+            int countA = productCountMap.getOrDefault(a.getStoreId(), 0);
+            int countB = productCountMap.getOrDefault(b.getStoreId(), 0);
+            return Integer.compare(countB, countA);
+        });
+
+        // 4. Lấy top 5 store
+        List<entity.Store> topStores = allStores.stream().limit(5).collect(Collectors.toList());
+
+        // 5. Gửi ra JSP
+        request.setAttribute("topStores", topStores);
+        request.setAttribute("allStores", allStores);
+        request.setAttribute("productCountMap", productCountMap);
+
+        // Forward
         request.getRequestDispatcher("/user/home.jsp").forward(request, response);
     }
 }
