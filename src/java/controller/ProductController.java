@@ -252,7 +252,7 @@ private void viewDetail(HttpServletRequest request, HttpServletResponse response
         isWishlisted = wishlistDAO.isWishlisted(userId, id);
     }
 
-    request.setAttribute("isWishlisted", isWishlisted);
+request.setAttribute("isFavorited", isWishlisted);
 
     // ======================================================
 

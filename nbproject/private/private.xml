@@ -3,9 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/Vien/SWP391-G6/src/java/controller/CartController.java</file>
-            <file>file:/E:/Vien/SWP391-G6/src/java/controller/seller/SellerCreateShipmentServlet.java</file>
-            <file>file:/E:/Vien/SWP391-G6/src/java/util/DBContext.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/dao/WishlistDAO.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/dao/FollowStoreDAO.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/controller/HomeController.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/controller/ProductController.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/controller/FollowStoreController.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/dao/StoreDAO.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/dao/ProductDAO.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/controller/WishlistServlet.java</file>
+            <file>file:/D:/final%20swp%20vu%20ngoc%20hung/main/SWP391-G6/src/java/entity/FollowStore.java</file>
         </group>
     </open-files>
 </project-private>
