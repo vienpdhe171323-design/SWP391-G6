@@ -117,79 +117,88 @@
             <div class="card p-4 p-md-5">
                 <h2 class="text-center mb-4 fw-bold text-primary">Chi tiết sản phẩm</h2>
 
-           <div class="row g-4">
-    <div class="col-md-5 text-center">
-        <img src="${productBox.imageUrl}" 
-             alt="${productBox.productName}" 
-             class="detail-img"
-             onerror="this.src='${pageContext.request.contextPath}/images/no-image.png';">
-    </div>
+                <div class="row g-4">
+                    <div class="col-md-5 text-center">
+                        <img src="${productBox.imageUrl}" 
+                             alt="${productBox.productName}" 
+                             class="detail-img"
+                             onerror="this.src='${pageContext.request.contextPath}/images/no-image.png';">
+                    </div>
 
- <div class="col-md-7">
-    <h4 class="fw-bold text-dark">${productBox.productName}</h4>
+                    <div class="col-md-7">
+                        <h4 class="fw-bold text-dark">${productBox.productName}</h4>
 
-    <p class="fs-5"><strong>Giá:</strong> 
-        <span class="text-danger fw-bold">${productBox.price}₫</span>
-    </p>
+                        <p class="fs-5"><strong>Giá:</strong> 
+                            <span class="text-danger fw-bold">${productBox.price}₫</span>
+                        </p>
 
-    <p><strong>Trạng thái:</strong>
-        <span class="badge ${productBox.status == 'Active' ? 'bg-success' : 'bg-secondary'}">
-            ${productBox.status}
-        </span>
-    </p>
+                        <p><strong>Trạng thái:</strong>
+                            <span class="badge ${productBox.status == 'Active' ? 'bg-success' : 'bg-secondary'}">
+                                ${productBox.status}
+                            </span>
+                        </p>
 
-    <p><strong>Tồn kho:</strong> 
-        <span class="${productBox.stock > 0 ? 'text-success' : 'text-danger'} fw-bold">
-            ${productBox.stock}
-        </span>
-    </p>
+                        <p><strong>Tồn kho:</strong> 
+                            <span class="${productBox.stock > 0 ? 'text-success' : 'text-danger'} fw-bold">
+                                ${productBox.stock}
+                            </span>
+                        </p>
 
-    <hr>
+                        <hr>
 
-    <p><strong>Danh mục:</strong> ${productBox.categoryName}
-        <c:if test="${not empty productBox.parentCategoryName}">
-            <small class="text-muted">(Cha: ${productBox.parentCategoryName})</small>
-        </c:if>
-    </p>
+                        <p><strong>Danh mục:</strong> ${productBox.categoryName}
+                            <c:if test="${not empty productBox.parentCategoryName}">
+                                <small class="text-muted">(Cha: ${productBox.parentCategoryName})</small>
+                            </c:if>
+                        </p>
 
-    <p><strong>Cửa hàng:</strong> <span class="text-primary">${productBox.storeName}</span></p>
-    <p><strong>Ngày tạo cửa hàng:</strong> ${productBox.storeCreatedAt}</p>
+                        <p><strong>Cửa hàng:</strong> <span class="text-primary">${productBox.storeName}</span></p>
+                        <p><strong>Ngày tạo cửa hàng:</strong> ${productBox.storeCreatedAt}</p>
 
-    <c:choose>
+                        <c:choose>
 
-        <c:when test="${sessionScope.user != null}">
+                            <c:when test="${sessionScope.user != null}">
 
-            <c:if test="${isFavorited}">
-                <form action="${pageContext.request.contextPath}/wishlist" method="post" class="mt-3">
-                    <input type="hidden" name="productId" value="${productBox.productId}">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-heart"></i> Đã yêu thích (Bấm để bỏ)
-                    </button>
-                </form>
-            </c:if>
+                                <c:if test="${isFavorited}">
+                                    <form action="${pageContext.request.contextPath}/wishlist" method="post" class="mt-3">
+                                        <input type="hidden" name="productId" value="${productBox.productId}">
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-heart"></i> Đã yêu thích (Bấm để bỏ)
+                                        </button>
+                                    </form>
+                                </c:if>
 
-            <c:if test="${!isFavorited}">
-                <form action="${pageContext.request.contextPath}/wishlist" method="post" class="mt-3">
-                    <input type="hidden" name="productId" value="${productBox.productId}">
-                    <button type="submit" class="btn btn-outline-danger">
-                        <i class="far fa-heart"></i> Thêm vào yêu thích
-                    </button>
-                </form>
-            </c:if>
+                                <c:if test="${!isFavorited}">
+                                    <form action="${pageContext.request.contextPath}/wishlist" method="post" class="mt-3">
+                                        <input type="hidden" name="productId" value="${productBox.productId}">
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="far fa-heart"></i> Thêm vào yêu thích
+                                        </button>
+                                    </form>
+                                </c:if>
 
-        </c:when>
+                            </c:when>
 
-        <c:otherwise>
-            <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-danger mt-3">
-                <i class="fas fa-heart"></i> Đăng nhập để yêu thích
-            </a>
-        </c:otherwise>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-danger mt-3">
+                                    <i class="fas fa-heart"></i> Đăng nhập để yêu thích
+                                </a>
+                            </c:otherwise>
 
-    </c:choose>
+                        </c:choose>
 
-</div>
+                        <form action="${pageContext.request.contextPath}/compare" method="post" class="mt-2">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="productId" value="${productBox.productId}">
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-balance-scale"></i> Thêm vào so sánh
+                            </button>
+                        </form>
 
-</div>
+
+                    </div>
+
+                </div>
 
 
                 <hr class="my-4">
