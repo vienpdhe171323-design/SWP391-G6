@@ -382,11 +382,11 @@
                     </button>
                     <div class="logo">
                         <i class="fas fa-tachometer-alt"></i>
-                        Admin Dashboard
+                        Seller Dashboard
                     </div>
                 </div>
                 <div class="user-info">
-                    <span>Xin chào, Admin</span>
+                    <span>Xin chào, Seller</span>
                     <div class="user-avatar">
                         <i class="fas fa-user"></i>
                     </div>

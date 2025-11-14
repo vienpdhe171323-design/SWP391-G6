@@ -120,7 +120,7 @@ public class LoginController extends HttpServlet {
                 break;
 
             case "seller":
-                response.sendRedirect(request.getContextPath() + "/seller/orders");
+                response.sendRedirect(request.getContextPath() + "/seller/dashboard");
                 break;
 
             case "staff":
