@@ -39,7 +39,7 @@ public class HomeController extends HttpServlet {
         int pageIndex = (pageParam != null && !pageParam.isEmpty())
                 ? Integer.parseInt(pageParam) : 1;
 
-        int pageSize = 10;
+        int pageSize = 12;
 
         // Sidebar categories
         request.setAttribute("categories", categoryDAO.getAllCategories());

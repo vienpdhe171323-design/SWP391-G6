@@ -1,5 +1,6 @@
 package dao;
 
+import entity.ProductAttributeBox;
 import entity.ProductBox;
 import util.DBContext;
 
@@ -9,47 +10,100 @@ import java.util.stream.Collectors;
 
 public class CompareDAO extends DBContext {
 
-    public List<ProductBox> getProductsForCompare(List<Integer> ids) {
-        List<ProductBox> list = new ArrayList<>();
+    public List<ProductBox> getProductsForCompare(List<Integer> productIds) {
+        List<ProductBox> products = new ArrayList<>();
+        if (productIds == null || productIds.isEmpty()) {
+            return products;
+        }
 
-        if (ids == null || ids.isEmpty()) return list;
+        // Tạo placeholder: ?, ?, ?
+        String placeholders = productIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(","));
 
-        String params = ids.stream().map(i -> "?").collect(Collectors.joining(","));
-        String sql = """
+        // === QUERY 1: Lấy thông tin sản phẩm ===
+        String productSql = """
             SELECT 
                 p.ProductId,
                 p.ProductName,
                 p.Price,
                 p.Stock,
                 p.ImageUrl,
+                s.StoreName,
                 c.CategoryName,
-                s.StoreName
+                CONVERT(varchar, s.CreatedAt, 103) AS StoreCreatedAt
             FROM Products p
-            LEFT JOIN Categories c ON p.CategoryId = c.CategoryId
-            LEFT JOIN Stores s ON p.StoreId = s.StoreId
-            WHERE p.ProductId IN ( %s )
-        """.formatted(params);
+            JOIN Stores s ON p.StoreId = s.StoreId
+            JOIN Categories c ON p.CategoryId = c.CategoryId
+            WHERE p.ProductId IN (%s)
+            """.formatted(placeholders);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            int idx = 1;
-            for (Integer id : ids) ps.setInt(idx++, id);
+        // === QUERY 2: Lấy tất cả thuộc tính ===
+        String attrSql = """
+            SELECT 
+                pa.ProductId,
+                a.AttributeName,
+                pa.Value
+            FROM ProductAttributes pa
+            JOIN Attributes a ON pa.AttributeId = a.AttributeId
+            WHERE pa.ProductId IN (%s)
+            """.formatted(placeholders);
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                ProductBox p = new ProductBox();
-                p.setProductId(rs.getInt("ProductId"));
-                p.setProductName(rs.getString("ProductName"));
-                p.setPrice(rs.getBigDecimal("Price"));
-                p.setStock(rs.getInt("Stock"));
-                p.setImageUrl(rs.getString("ImageUrl"));
-                p.setCategoryName(rs.getString("CategoryName"));
-                p.setStoreName(rs.getString("StoreName"));
-                list.add(p);
+        try {
+            // === 1. Lấy sản phẩm ===
+            Map<Integer, ProductBox> productMap = new LinkedHashMap<>();
+            try (PreparedStatement psProduct = connection.prepareStatement(productSql)) {
+                for (int i = 0; i < productIds.size(); i++) {
+                    psProduct.setInt(i + 1, productIds.get(i));
+                }
+
+                try (ResultSet rs = psProduct.executeQuery()) {
+                    while (rs.next()) {
+                        ProductBox box = new ProductBox(
+                                rs.getInt("ProductId"),
+                                rs.getString("ProductName"),
+                                rs.getBigDecimal("Price"),
+                                rs.getInt("Stock"),
+                                "Active",
+                                rs.getString("ImageUrl"),
+                                rs.getString("StoreName"),
+                                rs.getString("CategoryName"),
+                                null,
+                                rs.getString("StoreCreatedAt")
+                        );
+                        box.setAttributes(new ArrayList<>());
+                        productMap.put(box.getProductId(), box);
+                    }
+                }
             }
-        } catch (Exception e) {
+
+            // === 2. Lấy thuộc tính ===
+            try (PreparedStatement psAttr = connection.prepareStatement(attrSql)) {
+                for (int i = 0; i < productIds.size(); i++) {
+                    psAttr.setInt(i + 1, productIds.get(i));
+                }
+
+                try (ResultSet rs = psAttr.executeQuery()) {
+                    while (rs.next()) {
+                        int pid = rs.getInt("ProductId");
+                        ProductBox box = productMap.get(pid);
+                        if (box != null) {
+                            ProductAttributeBox attr = new ProductAttributeBox(
+                                    rs.getString("AttributeName"),
+                                    rs.getString("Value")
+                            );
+                            box.getAttributes().add(attr);
+                        }
+                    }
+                }
+            }
+
+            products.addAll(productMap.values());
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return list;
+        return products;
     }
 }

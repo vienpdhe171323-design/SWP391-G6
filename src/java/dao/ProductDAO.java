@@ -12,7 +12,7 @@ public class ProductDAO extends DBContext {
 
     public List<Product> getProductsByPage(int pageIndex) {
         List<Product> list = new ArrayList<>();
-        int pageSize = 10;
+        int pageSize = 12;
 
         String sql = "SELECT * FROM ("
                 + " SELECT ROW_NUMBER() OVER (ORDER BY p.ProductId ASC) AS RowNum, "
