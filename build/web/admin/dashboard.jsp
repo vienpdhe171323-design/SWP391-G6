@@ -354,32 +354,7 @@
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="chart-grid">
-            <!-- Line Chart: Doanh thu theo tháng -->
-            <div class="chart-card">
-                <h3 class="chart-title">Doanh thu theo tháng</h3>
-                <canvas id="revenueChart"></canvas>
-            </div>
 
-            <!-- Bar Chart: Top 5 sản phẩm -->
-            <div class="chart-card">
-                <h3 class="chart-title">Top 5 sản phẩm bán chạy</h3>
-                <canvas id="topProductsChart"></canvas>
-            </div>
-
-            <!-- Doughnut Chart: Trạng thái đơn hàng -->
-            <div class="chart-card">
-                <h3 class="chart-title">Tỷ lệ trạng thái đơn hàng</h3>
-                <canvas id="orderStatusChart"></canvas>
-            </div>
-
-            <!-- Pie Chart: Phân bố người dùng -->
-            <div class="chart-card">
-                <h3 class="chart-title">Phân bố vai trò người dùng</h3>
-                <canvas id="userRoleChart"></canvas>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

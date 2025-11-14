@@ -398,10 +398,7 @@
         <canvas id="stockChart"></canvas>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        &copy; 2025 Admin Panel. Được xây dựng với <i class="fa-solid fa-heart text-danger"></i> bởi Team Dev.
-    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
