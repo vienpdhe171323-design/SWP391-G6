@@ -249,13 +249,16 @@
         <a href="${pageContext.request.contextPath}/product" class="sidebar-item">
             <i class="fa-solid fa-boxes-stacked"></i> <span>Sản phẩm</span>
         </a>
+        <a href="${pageContext.request.contextPath}/store" class="sidebar-item">
+            <i class="fa-solid fa-store"></i> <span>Cửa hàng</span>
+        </a>
         <a href="${pageContext.request.contextPath}/admin/manager-warehouse" class="sidebar-item">
             <i class="fa-solid fa-warehouse"></i> <span>Quản lý kho</span>
         </a>
         <a href="${pageContext.request.contextPath}/order-report" class="sidebar-item">
             <i class="fa-solid fa-receipt"></i> <span>Đơn hàng</span>
         </a>
-        <a href="${pageContext.request.contextPath}/admin/stock-report" class="sidebar-item active">
+        <a href="${pageContext.request.contextPath}/admin/stock-report" class="sidebar-item">
             <i class="fa-solid fa-chart-column"></i> <span>Báo cáo tồn kho</span>
         </a>
         <form action="${pageContext.request.contextPath}/logout" method="post" class="sidebar-item" style="padding:0;margin:0;">
@@ -265,7 +268,6 @@
         </form>
     </div>
 </div>
-
 <!-- Main Content -->
 <div class="main-content">
     <div class="page-header">
