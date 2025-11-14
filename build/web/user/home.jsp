@@ -434,26 +434,78 @@
             <div class="row g-4">
                 <!-- Sidebar -->
                 <div class="col-lg-3">
-                    <!-- Danh mục -->
-                    <div class="sidebar-card mb-4">
-                        <div class="sidebar-header">
-                            <i class="fas fa-list me-2"></i> Danh mục
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <a href="home" class="category-link ${selectedCategoryId == null ? 'active' : ''}">
-                                    <i class="fas fa-grip-horizontal"></i> Tất cả
-                                </a>
-                            </li>
-                            <c:forEach var="cat" items="${categories}">
-                                <li class="list-group-item">
-                                    <a href="home?categoryId=${cat.categoryId}" class="category-link ${cat.categoryId == selectedCategoryId ? 'active' : ''}">
-                                        <i class="fas fa-tag"></i> ${cat.categoryName}
-                                    </a>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </div>
+                   <!-- Danh mục -->
+<div class="sidebar-card mb-4">
+    <div class="sidebar-header">
+        <i class="fas fa-list me-2"></i> Danh mục
+    </div>
+
+    <!-- Danh sách 5 danh mục đầu tiên -->
+    <ul id="topCategoryList" class="list-group list-group-flush">
+        <li class="list-group-item">
+            <a href="home" class="category-link ${selectedCategoryId == null ? 'active' : ''}">
+                <i class="fas fa-grip-horizontal"></i> Tất cả
+            </a>
+        </li>
+        <c:forEach var="cat" items="${categories}" begin="0" end="4">
+            <li class="list-group-item">
+                <a href="home?categoryId=${cat.categoryId}" class="category-link ${cat.categoryId == selectedCategoryId ? 'active' : ''}">
+                    <i class="fas fa-tag"></i> ${cat.categoryName}
+                </a>
+            </li>
+        </c:forEach>
+    </ul>
+
+    <!-- Danh sách toàn bộ danh mục (ẩn mặc định) -->
+    <ul id="allCategoryList" class="list-group list-group-flush" style="display:none;">
+        <li class="list-group-item">
+            <a href="home" class="category-link ${selectedCategoryId == null ? 'active' : ''}">
+                <i class="fas fa-grip-horizontal"></i> Tất cả
+            </a>
+        </li>
+        <c:forEach var="cat" items="${categories}">
+            <li class="list-group-item">
+                <a href="home?categoryId=${cat.categoryId}" class="category-link ${cat.categoryId == selectedCategoryId ? 'active' : ''}">
+                    <i class="fas fa-tag"></i> ${cat.categoryName}
+                </a>
+            </li>
+        </c:forEach>
+    </ul>
+
+    <!-- Nút ẩn/hiện -->
+    <div class="text-center mt-2">
+        <button id="toggleCategoryBtn" class="btn btn-sm btn-outline-primary">
+            Xem tất cả
+        </button>
+    </div>
+</div>
+
+<script>
+    const toggleCategoryBtn = document.getElementById("toggleCategoryBtn");
+    const topCategoryList = document.getElementById("topCategoryList");
+    const allCategoryList = document.getElementById("allCategoryList");
+
+    toggleCategoryBtn.addEventListener("click", () => {
+        if (allCategoryList.style.display === "none") {
+            allCategoryList.style.display = "block";
+            topCategoryList.style.display = "none";
+            toggleCategoryBtn.textContent = "Thu gọn";
+            toggleCategoryBtn.classList.remove("btn-outline-primary");
+            toggleCategoryBtn.classList.add("btn-primary");
+        } else {
+            allCategoryList.style.display = "none";
+            topCategoryList.style.display = "block";
+            toggleCategoryBtn.textContent = "Xem tất cả";
+            toggleCategoryBtn.classList.remove("btn-primary");
+            toggleCategoryBtn.classList.add("btn-outline-primary");
+        }
+    });
+
+    // Ẩn nút nếu không đủ 6 danh mục (Tất cả + 5 con)
+    if (${categories.size()} <= 5) {
+        toggleCategoryBtn.style.display = "none";
+    }
+</script>
 
                     <!-- Cửa hàng nổi bật -->
                     <div class="sidebar-card store-highlight">
